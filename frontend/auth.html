@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alchemist's Grimoire</title>
+    <title>Enter the Realm - Alchemist's Grimoire</title>
+    <link rel="icon" href="/assets/title image.png" type="image/png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-
 <body>
     <div id="background-container">
         <div id="sparkle-container"></div>
     </div>
-
     <header>
         <nav class="navbar">
             <a href="index.html" class="logo">
@@ -23,9 +21,8 @@
                 <a href="auth.html">Sign In</a>
                 <a href="auth.html" class="btn btn-primary">Get Started</a>
             </div>
-        </nav>
+            </nav>
     </header>
-
     <main class="auth-main">
         <div class="auth-container">
             <h2 class="auth-title">Enter the magical realm</h2>
@@ -33,7 +30,6 @@
                 <button class="tab-link active" data-tab="signin">Sign In</button>
                 <button class="tab-link" data-tab="signup">Sign Up</button>
             </div>
-
             <form id="signin-form" class="auth-form active">
                 <h3>Welcome Back</h3>
                 <p>Sign in to access your grimoire</p>
@@ -43,11 +39,13 @@
                 </div>
                 <div class="form-group">
                     <label for="signin-password">Password</label>
-                    <input type="password" id="signin-password" placeholder="Enter your password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="signin-password" placeholder="Enter your password" required>
+                        <i class="fa-solid fa-eye eye-icon" id="toggle-signin-password"></i>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary auth-btn">Sign In</button>
             </form>
-
             <form id="signup-form" class="auth-form">
                 <h3>Join the Circus</h3>
                 <p>Create your account to start tracking</p>
@@ -61,22 +59,22 @@
                 </div>
                 <div class="form-group">
                     <label for="signup-password">Password</label>
-                    <input type="password" id="signup-password" placeholder="Create a strong password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="signup-password" placeholder="Create a strong password" required>
+                        <i class="fa-solid fa-eye eye-icon" id="toggle-signup-password"></i>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary auth-btn">Sign Up</button>
             </form>
+
             <div style="text-align: center; color: var(--text-muted); margin: 16px 0;">OR</div>
 
-            <a href="http://localhost:5000/api/auth/google" class="btn btn-secondary auth-btn"
-                style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo"
-                    style="width: 24px; height: 24px;">
+            <a href="http://localhost:5000/api/auth/google" class="btn btn-secondary auth-btn google-btn">
+                <img class="google-logo" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo">
                 Continue with Google
             </a>
         </div>
     </main>
-
     <script src="script.js"></script>
 </body>
-
 </html>
