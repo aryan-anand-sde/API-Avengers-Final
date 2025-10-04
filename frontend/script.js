@@ -1,7 +1,5 @@
-// script.js
-
 document.addEventListener("DOMContentLoaded", () => {
-  // --- Sparkle Animation (runs on both pages) ---
+  // --- Sparkle Animation ---
   const sparkleContainer = document.getElementById("sparkle-container");
   if (sparkleContainer) {
     const sparkleCount = 70;
@@ -21,12 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- Auth Page Tab Logic (only runs if auth elements exist) ---
+  // --- Auth Page Tab Logic ---
   const authTabsContainer = document.querySelector(".auth-tabs");
   if (authTabsContainer) {
     const tabLinks = authTabsContainer.querySelectorAll(".tab-link");
     const authForms = document.querySelectorAll(".auth-form");
-
     tabLinks.forEach((tab) => {
       tab.addEventListener("click", () => {
         const targetTab = tab.dataset.tab;
@@ -42,10 +39,31 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- MISSING PART: API Connection Logic ---
+  // UPDATED OAUTH TOKEN HANDLER
+  // --- Handle OAuth Token from URL ---
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  const isNewUser = urlParams.get('isNewUser');
+
+  if (token) {
+    localStorage.setItem('token', token);
+    
+    // Show a different alert based on the isNewUser status
+    if (isNewUser === 'true') {
+      alert('Success! Welcome to the Grimoire.');
+    } else {
+      alert('Welcome back, Alchemist!');
+    }
+    
+    window.history.replaceState({}, document.title, window.location.pathname);
+    // You can redirect to your main app page here, e.g.:
+    // window.location.href = '/index.html'; 
+  }
+
+  // --- API Connection Logic for Forms ---
   const signupForm = document.getElementById("signup-form");
   const signinForm = document.getElementById("signin-form");
-  const API_URL = "http://localhost:5000/api/auth"; // Your backend server URL
+  const API_URL = "http://localhost:5000/api/auth";
 
   // Handle Sign Up
   if (signupForm) {
@@ -54,24 +72,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const name = document.getElementById("signup-name").value;
       const email = document.getElementById("signup-email").value;
       const password = document.getElementById("signup-password").value;
-
       try {
         const res = await fetch(`${API_URL}/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password }),
         });
-
         const data = await res.json();
-
         if (!res.ok) {
           throw new Error(data.msg || "Something went wrong");
         }
-
-        // On success, show alert, save the token, and redirect
         alert("Success! Welcome to the Grimoire.");
         localStorage.setItem("token", data.token);
-        // window.location.href = 'dashboard.html'; // Optional: Redirect to another page
       } catch (err) {
         alert(`Error: ${err.message}`);
       }
@@ -84,24 +96,18 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       const email = document.getElementById("signin-email").value;
       const password = document.getElementById("signin-password").value;
-
       try {
         const res = await fetch(`${API_URL}/signin`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
-
         const data = await res.json();
-
         if (!res.ok) {
           throw new Error(data.msg || "Something went wrong");
         }
-
-        // On success, show alert, save the token, and redirect
         alert("Welcome back, Alchemist!");
         localStorage.setItem("token", data.token);
-        // window.location.href = 'dashboard.html'; // Optional: Redirect to another page
       } catch (err) {
         alert(`Error: ${err.message}`);
       }

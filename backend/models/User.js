@@ -11,10 +11,7 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true, // Each email must be unique
     },
-    password: {
-        type: String,
-        required: true,
-    },
-}, { timestamps: true }); // Automatically adds createdAt and updatedAt fields
-
+    password: { type: String, required: false }, // Password is no longer required
+    googleId: { type: String }},
+    { timestamps: true });
 module.exports = mongoose.model('User', UserSchema);
