@@ -41,15 +41,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Handle OAuth Token from URL ---
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
-  const isNewUser = urlParams.get('isNewUser');
+  const token = urlParams.get("token");
+  const isNewUser = urlParams.get("isNewUser");
 
   if (token) {
-    localStorage.setItem('token', token);
-    if (isNewUser === 'true') {
-      alert('Success! Welcome to the Grimoire.');
+    localStorage.setItem("token", token);
+    if (isNewUser === "true") {
+      alert("Success! Welcome to the Grimoire.");
     } else {
-      alert('Welcome back, Alchemist!');
+      alert("Welcome back, Alchemist!");
     }
     window.history.replaceState({}, document.title, window.location.pathname);
   }
@@ -111,26 +111,29 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Password Toggle Logic ---
   const togglePasswordVisibility = (toggleIcon, passwordInput) => {
     if (toggleIcon && passwordInput) {
-      toggleIcon.addEventListener('click', () => {
+      toggleIcon.addEventListener("click", () => {
         // Toggle the type attribute
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        
+        const type =
+          passwordInput.getAttribute("type") === "password"
+            ? "text"
+            : "password";
+        passwordInput.setAttribute("type", type);
+
         // Toggle the icon
-        toggleIcon.classList.toggle('fa-eye');
-        toggleIcon.classList.toggle('fa-eye-slash');
+        toggleIcon.classList.toggle("fa-eye");
+        toggleIcon.classList.toggle("fa-eye-slash");
       });
     }
   };
 
   // Apply the toggle logic to both password fields
   togglePasswordVisibility(
-    document.getElementById('toggle-signin-password'),
-    document.getElementById('signin-password')
+    document.getElementById("toggle-signin-password"),
+    document.getElementById("signin-password")
   );
 
   togglePasswordVisibility(
-    document.getElementById('toggle-signup-password'),
-    document.getElementById('signup-password')
+    document.getElementById("toggle-signup-password"),
+    document.getElementById("signup-password")
   );
 });
