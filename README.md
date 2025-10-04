@@ -10,15 +10,15 @@
 
 ---
 
-> **Home Page :** > ![alt text](/assets/Home%20Page%20ss.png)
+> **Home Page :** ![alt text](/assets/Home%20Page%20ss.png)
 
-> **Magical Features :** > ![alt text](/assets/Magical%20Features%20ss.png)
+> **Magical Features :** ![alt text](/assets/Magical%20Features%20ss.png)
 
-> **Sign Up :** > ![alt text](/assets/sign%20up%20ss.png)
+> **Sign Up :** ![alt text](/assets/sign%20up%20ss.png)
 
-> **Sign in :** > ![alt text](/assets/sign%20in%20ss.png)
+> **Sign in :** ![alt text](/assets/sign%20in%20ss.png)
 
-> **Dashboard :** > ![alt text](/assets/Dashboard%20ss.png)
+> **Dashboard :** ![alt text](/assets/Dashboard%20ss.png)
 
 ---
 
