@@ -26,17 +26,17 @@ body {
 }
 
 #background-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('circus-tent-bg.png'); /* IMPORTANT: ADD YOUR IMAGE HERE */
-    background-size: cover;
-    background-position: center bottom;
-    opacity: 0.15;
-    z-index: -2;
-    filter: brightness(0.8) blur(1px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("/assets/hero-circus.jpg");
+  background-size: cover;
+  background-position: center bottom;
+  opacity: 0.15;
+  z-index: -2;
+  filter: brightness(0.8) blur(1px);
 }
 
 #sparkle-container {
@@ -84,8 +84,14 @@ body {
     font-size: 0.95rem;
 }
 
-.btn-primary { background-color: var(--gradient-start); color: white; }
-.btn-primary:hover { filter: brightness(1.2); box-shadow: 0 4px 15px rgba(168, 85, 247, 0.5); }
+.btn-primary {
+  background-color: var(--gradient-start);
+  color: white;
+}
+.btn-primary:hover {
+  filter: brightness(1.25);
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.5);
+}
 
 .btn-gradient { background: linear-gradient(90deg, var(--gradient-start), var(--pink)); color: white; }
 .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(168, 85, 247, 0.6); }
@@ -94,20 +100,41 @@ body {
 .btn-secondary:hover { background-color: var(--card-bg); }
 
 /* --- Header & Navbar --- */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 5%;
-    max-width: 1200px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 10;
+header {
+  margin: 0;
 }
-.logo { font-size: 1.2rem; font-weight: 700; color: var(--text-color); text-decoration: none; }
-.logo i { color: var(--gradient-start); margin-right: 8px; }
-.nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 20px; font-weight: 500; }
-.nav-links a:not(.btn):hover { color: var(--text-color); }
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  padding-left: 50px;
+  padding-right: 50px;
+  background-color: rgba(0, 0, 0, 0.25);
+  /* max-width: 1200px; */
+  /* margin: 0 auto; */
+  position: relative;
+  z-index: 10;
+}
+.logo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  text-decoration: none;
+}
+.logo i {
+  color: var(--gradient-start);
+  margin-right: 8px;
+}
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-left: 20px;
+  font-weight: 500;
+}
+.nav-links a:not(.btn):hover {
+  color: var(--text-color);
+}
 
 /* --- Hero Section --- */
 .hero-section {
@@ -140,6 +167,93 @@ body {
 .card-icon.pink { color: var(--pink); } .card-icon.yellow { color: var(--yellow); } .card-icon.purple { color: var(--purple); }
 .feature-card h3 { font-size: 1.25rem; margin-bottom: 8px; color: var(--text-color); }
 .feature-card p { color: var(--text-muted); }
+
+/* --- Dashboard Styles --- */
+.dashboard-main {
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.dashboard-container {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  padding: 32px;
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  color: var(--text-color);
+}
+
+.add-medicine-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+  margin-bottom: 32px;
+}
+
+.add-medicine-form input {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.add-medicine-form input:focus {
+  outline: none;
+  border-color: var(--gradient-start);
+}
+
+.medicines-list {
+  display: grid;
+  gap: 16px;
+}
+
+.medicine-item {
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.medicine-item:hover {
+  transform: translateY(-2px);
+}
+
+.medicine-content h3 {
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.medicine-content p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.btn-delete {
+  background-color: transparent;
+  color: var(--pink);
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-delete:hover {
+  background-color: rgba(236, 72, 153, 0.1);
+  transform: scale(1.1);
+}
 
 /* --- Footer --- */
 footer { border-top: 1px solid var(--border-color); padding: 40px 5%; text-align: center; color: var(--text-muted); position: relative; z-index: 5; margin-top: 50px; }
