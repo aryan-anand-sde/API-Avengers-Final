@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // UPDATED OAUTH TOKEN HANDLER
   // --- Handle OAuth Token from URL ---
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
@@ -47,17 +46,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (token) {
     localStorage.setItem('token', token);
-    
-    // Show a different alert based on the isNewUser status
     if (isNewUser === 'true') {
       alert('Success! Welcome to the Grimoire.');
     } else {
       alert('Welcome back, Alchemist!');
     }
-    
     window.history.replaceState({}, document.title, window.location.pathname);
-    // You can redirect to your main app page here, e.g.:
-    // window.location.href = '/index.html'; 
   }
 
   // --- API Connection Logic for Forms ---
@@ -113,4 +107,30 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // --- Password Toggle Logic ---
+  const togglePasswordVisibility = (toggleIcon, passwordInput) => {
+    if (toggleIcon && passwordInput) {
+      toggleIcon.addEventListener('click', () => {
+        // Toggle the type attribute
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle the icon
+        toggleIcon.classList.toggle('fa-eye');
+        toggleIcon.classList.toggle('fa-eye-slash');
+      });
+    }
+  };
+
+  // Apply the toggle logic to both password fields
+  togglePasswordVisibility(
+    document.getElementById('toggle-signin-password'),
+    document.getElementById('signin-password')
+  );
+
+  togglePasswordVisibility(
+    document.getElementById('toggle-signup-password'),
+    document.getElementById('signup-password')
+  );
 });
