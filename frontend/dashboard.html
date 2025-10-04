@@ -33,6 +33,7 @@
                 <input type="text" id="medicine-name" placeholder="Medicine Name" required>
                 <input type="text" id="medicine-dosage" placeholder="Dosage" required>
                 <input type="time" id="medicine-time" required>
+                <input type="email" id="reminder-email" placeholder="Email for reminders" required>
                 <button type="submit" class="btn btn-primary">Add Medicine</button>
             </form>
             <div id="medicines-list" class="medicines-list">
@@ -40,6 +41,7 @@
             </div>
         </div>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="dashboard.js"></script>
 </body>
 

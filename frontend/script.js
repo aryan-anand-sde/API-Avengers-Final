@@ -42,22 +42,22 @@ document.addEventListener("DOMContentLoaded", () => {
   // UPDATED OAUTH TOKEN HANDLER
   // --- Handle OAuth Token from URL ---
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
-  const isNewUser = urlParams.get('isNewUser');
+  const token = urlParams.get("token");
+  const isNewUser = urlParams.get("isNewUser");
 
   if (token) {
-    localStorage.setItem('token', token);
-    
+    localStorage.setItem("token", token);
+
     // Show a different alert based on the isNewUser status
-    if (isNewUser === 'true') {
-      alert('Success! Welcome to the Grimoire.');
+    if (isNewUser === "true") {
+      alert("Success! Welcome to the Grimoire.");
     } else {
-      alert('Welcome back, Alchemist!');
+      alert("Welcome back, Alchemist!");
     }
-    
+
     window.history.replaceState({}, document.title, window.location.pathname);
     // You can redirect to your main app page here, e.g.:
-    // window.location.href = '/index.html'; 
+    // window.location.href = '/index.html';
   }
 
   // --- API Connection Logic for Forms ---
