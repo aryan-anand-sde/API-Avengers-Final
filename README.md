@@ -26,4 +26,4 @@
 
 ---
 
-> **Event Tag :** >![CodeSangam 2025](<assets/title image.png>)
+> **Event Tag :** ![CodeSangam 2025](<assets/title image.png>)
