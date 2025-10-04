@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/assets/title image.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <div id="background-container">
+        <div id="sparkle-container"></div>
+    </div>
+
+    <header>
+        <nav class="navbar">
+            <a href="index.html" class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> Alchemist's Grimoire</a>
+            <div class="nav-links">
+                <a href="auth.html">Sign In</a>
+                <a href="auth.html" class="btn btn-primary" style="color: black;">Get Started</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="dashboard-container">
+            <h2 class="dashboard-title"><i class="fa-solid fa-capsules"></i> Medicines Dashboard</h2>
+            <hr>
+            <form id="add-medicine-form" class="add-medicine-form">
+                <input type="text" id="medicine-name" placeholder="Medicine Name" required>
+                <input type="text" id="medicine-dosage" placeholder="Dosage" required>
+                <input type="time" id="medicine-time" required>
+                <button type="submit" class="btn btn-primary">Add Medicine</button>
+            </form>
+            <div id="medicines-list" class="medicines-list">
+                <!-- Medicines will be dynamically added here -->
+            </div>
+        </div>
+    </main>
+    <script src="dashboard.js"></script>
+</body>
+
+</html>
