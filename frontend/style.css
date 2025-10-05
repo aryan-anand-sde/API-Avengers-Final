@@ -93,7 +93,7 @@ body {
   box-shadow: 0 4px 15px rgba(168, 85, 247, 0.5);
 }
 
-.btn-gradient { background: linear-gradient(90deg, var(--gradient-start), var(--pink)); color: white; }
+.btn-gradient { background: linear-gradient(90deg, var(--gradient-start), var(--pink)); color: black; }
 .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(168, 85, 247, 0.6); }
 
 .btn-secondary { background-color: transparent; color: var(--text-color); border: 1px solid var(--border-color); }
@@ -117,10 +117,17 @@ header {
   z-index: 10;
 }
 .logo {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text-color);
-  text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-decoration: none;
+    
+    /* ✅ UPDATED GRADIENT to match the main title */
+    background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+    
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
 }
 .logo i {
   color: var(--gradient-start);
@@ -260,7 +267,7 @@ footer { border-top: 1px solid var(--border-color); padding: 40px 5%; text-align
 .footer-content { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 0.85rem; }
 
 /* --- Auth Page Styles --- */
-.auth-main { display: flex; align-items: flex-start; justify-content: center; padding-top: 80px; min-height: 80vh; }
+.auth-main { display: flex; align-items: flex-start; justify-content: center; padding-top: 7px; min-height: 80vh; }
 .auth-container { max-width: 400px; width: 100%; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 32px; }
 .auth-title { text-align: center; margin-bottom: 24px; font-weight: 600; }
 .auth-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
@@ -276,18 +283,20 @@ footer { border-top: 1px solid var(--border-color); padding: 40px 5%; text-align
 /* CORRECTED: Unified style for text/email inputs and the password wrapper */
 .form-group input[type="text"],
 .form-group input[type="email"],
+.form-group input[type="password"],
 .password-wrapper {
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 10px;
-    background-color: var(--bg-color);
+    padding: 14px; /* Increased padding for a larger size */
+    background-color: #100E17; /* Changed background to white */
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 1rem;
-    color: var(--text-color);
+    color: white; /* Changed text color to black */
     transition: all 0.3s ease;
 }
+
 
 /* CORRECTED: Unified focus style */
 .form-group input[type="text"]:focus,

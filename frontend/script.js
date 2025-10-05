@@ -41,22 +41,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Handle OAuth Token from URL ---
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
-  const isNewUser = urlParams.get("isNewUser");
-
-  if (token) {
-    localStorage.setItem("token", token);
-    if (isNewUser === "true") {
-      alert("Success! Welcome to the Grimoire.");
+  const token = urlParams.get('token');
+  const isNewUser = urlParams.get('isNewUser');
+  
+  // This 'if' condition is now more specific to prevent conflicts
+  if (token && isNewUser !== null) {
+    localStorage.setItem('token', token);
+    if (isNewUser === 'true') {
+      alert('Success! Welcome to the Grimoire.');
     } else {
-      alert("Welcome back, Alchemist!");
+      alert('Welcome back, Alchemist!');
     }
     window.history.replaceState({}, document.title, window.location.pathname);
+    // window.location.href = '/dashboard.html'; 
   }
 
   // --- API Connection Logic for Forms ---
   const signupForm = document.getElementById("signup-form");
   const signinForm = document.getElementById("signin-form");
+  const forgotPasswordForm = document.getElementById('forgot-password-form');
+  const resetPasswordForm = document.getElementById('reset-password-form');
+  
   const API_URL = "http://localhost:5000/api/auth";
 
   // Handle Sign Up
@@ -107,33 +112,82 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+  
+  // Handle Forgot Password Form Submission
+  if (forgotPasswordForm) {
+      forgotPasswordForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = document.getElementById('email').value;
+          try {
+              const res = await fetch(`${API_URL}/forgot-password`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email }),
+              });
+              const data = await res.json();
+              if (!res.ok) {
+                  throw new Error(data.msg || 'Something went wrong.');
+              }
+              alert(data.msg);
+          } catch (err) {
+              alert(`Error: ${err.message}`);
+          }
+      });
+  }
+
+  // Handle Reset Password Form Submission
+  if (resetPasswordForm) {
+      resetPasswordForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const password = document.getElementById('password').value;
+          const confirmPassword = document.getElementById('confirm-password').value;
+
+          if (password !== confirmPassword) {
+              return alert('Passwords do not match.');
+          }
+
+          const resetToken = new URLSearchParams(window.location.search).get('token');
+          if (!resetToken) {
+              return alert('Error: No reset token found in URL.');
+          }
+
+          try {
+              const res = await fetch(`${API_URL}/reset-password/${resetToken}`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ password }),
+              });
+              const data = await res.json();
+              if (!res.ok) {
+                  throw new Error(data.msg || 'Something went wrong.');
+              }
+              alert(data.msg);
+              window.location.href = 'auth.html';
+          } catch (err) {
+              alert(`Error: ${err.message}`);
+          }
+      });
+  }
 
   // --- Password Toggle Logic ---
   const togglePasswordVisibility = (toggleIcon, passwordInput) => {
     if (toggleIcon && passwordInput) {
-      toggleIcon.addEventListener("click", () => {
-        // Toggle the type attribute
-        const type =
-          passwordInput.getAttribute("type") === "password"
-            ? "text"
-            : "password";
-        passwordInput.setAttribute("type", type);
-
-        // Toggle the icon
-        toggleIcon.classList.toggle("fa-eye");
-        toggleIcon.classList.toggle("fa-eye-slash");
+      toggleIcon.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        toggleIcon.classList.toggle('fa-eye');
+        toggleIcon.classList.toggle('fa-eye-slash');
       });
     }
   };
 
-  // Apply the toggle logic to both password fields
   togglePasswordVisibility(
-    document.getElementById("toggle-signin-password"),
-    document.getElementById("signin-password")
+    document.getElementById('toggle-signin-password'),
+    document.getElementById('signin-password')
   );
 
   togglePasswordVisibility(
-    document.getElementById("toggle-signup-password"),
-    document.getElementById("signup-password")
+    document.getElementById('toggle-signup-password'),
+    document.getElementById('signup-password')
   );
 });

@@ -1,4 +1,3 @@
-// models/User.js
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
@@ -9,9 +8,22 @@ const UserSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true, // Each email must be unique
+        unique: true,
     },
-    password: { type: String, required: false }, // Password is no longer required
-    googleId: { type: String }},
-    { timestamps: true });
+    password: {
+        type: String,
+        required: false,
+    },
+    googleId: {
+        type: String,
+    },
+    // ✅ NEW FIELDS FOR PASSWORD RESET
+    resetPasswordToken: {
+        type: String,
+    },
+    resetPasswordExpires: {
+        type: Date,
+    },
+}, { timestamps: true });
+
 module.exports = mongoose.model('User', UserSchema);

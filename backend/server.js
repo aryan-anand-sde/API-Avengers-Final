@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
-const path = require('path'); // NEW: Import the 'path' module
+const path = require('path'); 
 require('dotenv').config();
 
 const app = express();
@@ -11,11 +11,9 @@ const PORT = process.env.PORT || 5000;
 // --- Middleware ---
 app.use(cors());
 app.use(express.json());
-
-// NEW: Serve static files from the parent directory (which contains frontend files)
-app.use(express.static(path.join(__dirname, '..')));
-
-require('./passport-config'); // This executes the passport configuration file
+app.use(express.static(path.join(__dirname, '../frontend')));
+app.use('/assets', express.static(path.join(__dirname, '../assets')));
+require('./passport-config'); 
 app.use(passport.initialize());
 
 // --- Database Connection ---
@@ -28,12 +26,13 @@ const connectDB = async () => {
         process.exit(1);
     }
 };
-
 connectDB();
 
 // --- API Routes ---
-app.get('/', (req, res) => res.send('API is running... ✨'));
 app.use('/api/auth', require('./routes/auth'));
+
+// The problematic app.get('*', ...) line has been REMOVED from here.
+// express.static will now handle all frontend file requests.
 
 // --- Start the Server ---
 app.listen(PORT, () => console.log(`Server started on http://localhost:${PORT}`));
