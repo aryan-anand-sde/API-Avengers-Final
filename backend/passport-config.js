@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // backend/passport-config.js
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
@@ -5,6 +6,11 @@ import User from "./models/User.js";
 import dotenv from "dotenv";
 
 dotenv.config();
+=======
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const User = require('./models/User');
+>>>>>>> origin/main
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -13,7 +19,6 @@ passport.use(new GoogleStrategy({
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
-      // This is the new, improved logic
       const googleId = profile.id;
       const email = profile.emails[0].value;
       const name = profile.displayName;
@@ -25,21 +30,23 @@ passport.use(new GoogleStrategy({
         return done(null, user); // User found, log them in
       }
 
-      // 2. If not, check if a user exists with this email
+      // 2. If not, check if a user exists with this email (a local account)
       user = await User.findOne({ email: email });
 
       if (user) {
-        // User found via email, so this is a local account. Link it!
+        // User found via email, so link the Google account and verify them
         user.googleId = googleId;
+        user.isVerified = true; // Automatically verify the user
         await user.save();
         return done(null, user);
       }
 
-      // 3. If no user exists at all, create a new one
+      // 3. If no user exists at all, create a new, verified user
       const newUser = new User({
         googleId: googleId,
         name: name,
-        email: email
+        email: email,
+        isVerified: true, // Automatically verify new Google sign-ups
       });
       await newUser.save();
       return done(null, newUser);

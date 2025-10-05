@@ -39,30 +39,44 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Handle OAuth Token from URL ---
+  // --- Handle URL Parameters on Load ---
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
-  const isNewUser = urlParams.get("isNewUser");
+  const token = urlParams.get('token');
+  const isNewUser = urlParams.get('isNewUser');
+  const tab = urlParams.get('tab');
 
-  if (token) {
-    localStorage.setItem("token", token);
-    if (isNewUser === "true") {
-      alert("Success! Welcome to the Grimoire.");
+  // Handle OAuth token redirect
+  if (token && isNewUser !== null) {
+    localStorage.setItem('token', token);
+    if (isNewUser === 'true') {
+      alert('Success! Welcome to the Grimoire.');
     } else {
-      alert("Welcome back, Alchemist!");
+      alert('Welcome back, Alchemist!');
     }
     window.history.replaceState({}, document.title, window.location.pathname);
+    window.location.href = '/dashboard.html'; 
+  }
+
+  // Handle direct tab selection from URL
+  if (tab === 'signup' && authTabsContainer) {
+    document.querySelector('.tab-link[data-tab="signin"]').classList.remove('active');
+    document.getElementById('signin-form').classList.remove('active');
+    document.querySelector('.tab-link[data-tab="signup"]').classList.add('active');
+    document.getElementById('signup-form').classList.add('active');
   }
 
   // --- API Connection Logic for Forms ---
   const signupForm = document.getElementById("signup-form");
   const signinForm = document.getElementById("signin-form");
+  const forgotPasswordForm = document.getElementById('forgot-password-form');
+  const resetPasswordForm = document.getElementById('reset-password-form');
   const API_URL = "http://localhost:5000/api/auth";
 
   // Handle Sign Up
   if (signupForm) {
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+<<<<<<< HEAD
 
       const name = document.getElementById("signup-name").value;
       const email = document.getElementById("signup-email").value;
@@ -70,12 +84,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         const res = await fetch("http://localhost:5000/api/auth/signup", {
+=======
+      const button = signupForm.querySelector('.auth-btn');
+      const originalButtonText = button.innerHTML;
+      try {
+        button.disabled = true;
+        button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Signing Up...`;
+        const name = document.getElementById("signup-name").value;
+        const email = document.getElementById("signup-email").value;
+        const password = document.getElementById("signup-password").value;
+        const res = await fetch(`${API_URL}/signup`, {
+>>>>>>> origin/main
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password }),
         });
 
         const data = await res.json();
+<<<<<<< HEAD
 
         if (res.ok) {
           alert("Signup successful! Please sign in.");
@@ -87,6 +113,15 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (error) {
         console.error("Error:", error);
         alert("Something went wrong. Please try again.");
+=======
+        if (!res.ok) { throw new Error(data.msg || "Something went wrong"); }
+        alert(data.msg);
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      } finally {
+        button.disabled = false;
+        button.innerHTML = originalButtonText;
+>>>>>>> origin/main
       }
     });
   }
@@ -95,18 +130,30 @@ document.addEventListener("DOMContentLoaded", () => {
   if (signinForm) {
     signinForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+<<<<<<< HEAD
 
       const email = document.getElementById("signin-email").value;
       const password = document.getElementById("signin-password").value;
 
       try {
         const res = await fetch("http://localhost:5000/api/auth/signin", {
+=======
+      const button = signinForm.querySelector('.auth-btn');
+      const originalButtonText = button.innerHTML;
+      try {
+        button.disabled = true;
+        button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Signing In...`;
+        const email = document.getElementById("signin-email").value;
+        const password = document.getElementById("signin-password").value;
+        const res = await fetch(`${API_URL}/signin`, {
+>>>>>>> origin/main
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
 
         const data = await res.json();
+<<<<<<< HEAD
 
         if (res.ok) {
           // Store JWT token or user info if returned
@@ -120,36 +167,105 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (error) {
         console.error("Error:", error);
         alert("Something went wrong. Please try again.");
+=======
+        if (!res.ok) { throw new Error(data.msg || "Something went wrong"); }
+        alert("Welcome back, Alchemist!");
+        localStorage.setItem("token", data.token);
+        window.location.href = '/dashboard.html';
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      } finally {
+        button.disabled = false;
+        button.innerHTML = originalButtonText;
+>>>>>>> origin/main
       }
     });
+  }
+
+  // Handle Forgot Password Form Submission
+  if (forgotPasswordForm) {
+      forgotPasswordForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const button = forgotPasswordForm.querySelector('.auth-btn');
+          const originalButtonText = button.innerHTML;
+          try {
+            button.disabled = true;
+            button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Sending...`;
+            const email = document.getElementById('email').value;
+            const res = await fetch(`${API_URL}/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            const data = await res.json();
+            if (!res.ok) { throw new Error(data.msg || 'Something went wrong.'); }
+            alert(data.msg);
+          } catch (err) {
+              alert(`Error: ${err.message}`);
+          } finally {
+            button.disabled = false;
+            button.innerHTML = originalButtonText;
+          }
+      });
+  }
+
+  // Handle Reset Password Form Submission
+  if (resetPasswordForm) {
+      resetPasswordForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const button = resetPasswordForm.querySelector('.auth-btn');
+          const originalButtonText = button.innerHTML;
+          try {
+            button.disabled = true;
+            button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Updating...`;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            if (password !== confirmPassword) {
+                alert('Passwords do not match.');
+            } else {
+                const resetToken = new URLSearchParams(window.location.search).get('token');
+                if (!resetToken) {
+                    alert('Error: No reset token found in URL.');
+                } else {
+                    const res = await fetch(`${API_URL}/reset-password/${resetToken}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ password }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) { throw new Error(data.msg || 'Something went wrong.'); }
+                    alert(data.msg);
+                    window.location.href = 'auth.html';
+                }
+            }
+          } catch (err) {
+              alert(`Error: ${err.message}`);
+          } finally {
+            button.disabled = false;
+            button.innerHTML = originalButtonText;
+          }
+      });
   }
 
   // --- Password Toggle Logic ---
   const togglePasswordVisibility = (toggleIcon, passwordInput) => {
     if (toggleIcon && passwordInput) {
-      toggleIcon.addEventListener("click", () => {
-        // Toggle the type attribute
-        const type =
-          passwordInput.getAttribute("type") === "password"
-            ? "text"
-            : "password";
-        passwordInput.setAttribute("type", type);
-
-        // Toggle the icon
-        toggleIcon.classList.toggle("fa-eye");
-        toggleIcon.classList.toggle("fa-eye-slash");
+      toggleIcon.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        toggleIcon.classList.toggle('fa-eye');
+        toggleIcon.classList.toggle('fa-eye-slash');
       });
     }
   };
 
-  // Apply the toggle logic to both password fields
   togglePasswordVisibility(
-    document.getElementById("toggle-signin-password"),
-    document.getElementById("signin-password")
+    document.getElementById('toggle-signin-password'),
+    document.getElementById('signin-password')
   );
 
   togglePasswordVisibility(
-    document.getElementById("toggle-signup-password"),
-    document.getElementById("signup-password")
+    document.getElementById('toggle-signup-password'),
+    document.getElementById('signup-password')
   );
 });
