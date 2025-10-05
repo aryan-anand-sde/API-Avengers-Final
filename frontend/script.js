@@ -39,12 +39,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Handle OAuth Token from URL ---
+  // --- Handle URL Parameters on Load ---
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
   const isNewUser = urlParams.get('isNewUser');
-  
-  // This 'if' condition is now more specific to prevent conflicts
+  const tab = urlParams.get('tab');
+
+  // Handle OAuth token redirect
   if (token && isNewUser !== null) {
     localStorage.setItem('token', token);
     if (isNewUser === 'true') {
@@ -53,7 +54,15 @@ document.addEventListener("DOMContentLoaded", () => {
       alert('Welcome back, Alchemist!');
     }
     window.history.replaceState({}, document.title, window.location.pathname);
-    // window.location.href = '/dashboard.html'; 
+    window.location.href = '/dashboard.html'; 
+  }
+
+  // Handle direct tab selection from URL
+  if (tab === 'signup' && authTabsContainer) {
+    document.querySelector('.tab-link[data-tab="signin"]').classList.remove('active');
+    document.getElementById('signin-form').classList.remove('active');
+    document.querySelector('.tab-link[data-tab="signup"]').classList.add('active');
+    document.getElementById('signup-form').classList.add('active');
   }
 
   // --- API Connection Logic for Forms ---
@@ -61,30 +70,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const signinForm = document.getElementById("signin-form");
   const forgotPasswordForm = document.getElementById('forgot-password-form');
   const resetPasswordForm = document.getElementById('reset-password-form');
-  
   const API_URL = "http://localhost:5000/api/auth";
 
   // Handle Sign Up
   if (signupForm) {
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const name = document.getElementById("signup-name").value;
-      const email = document.getElementById("signup-email").value;
-      const password = document.getElementById("signup-password").value;
+      const button = signupForm.querySelector('.auth-btn');
+      const originalButtonText = button.innerHTML;
       try {
+        button.disabled = true;
+        button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Signing Up...`;
+        const name = document.getElementById("signup-name").value;
+        const email = document.getElementById("signup-email").value;
+        const password = document.getElementById("signup-password").value;
         const res = await fetch(`${API_URL}/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password }),
         });
         const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.msg || "Something went wrong");
-        }
-        alert("Success! Welcome to the Grimoire.");
-        localStorage.setItem("token", data.token);
+        if (!res.ok) { throw new Error(data.msg || "Something went wrong"); }
+        alert(data.msg);
       } catch (err) {
         alert(`Error: ${err.message}`);
+      } finally {
+        button.disabled = false;
+        button.innerHTML = originalButtonText;
       }
     });
   }
@@ -93,44 +105,55 @@ document.addEventListener("DOMContentLoaded", () => {
   if (signinForm) {
     signinForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById("signin-email").value;
-      const password = document.getElementById("signin-password").value;
+      const button = signinForm.querySelector('.auth-btn');
+      const originalButtonText = button.innerHTML;
       try {
+        button.disabled = true;
+        button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Signing In...`;
+        const email = document.getElementById("signin-email").value;
+        const password = document.getElementById("signin-password").value;
         const res = await fetch(`${API_URL}/signin`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
         const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.msg || "Something went wrong");
-        }
+        if (!res.ok) { throw new Error(data.msg || "Something went wrong"); }
         alert("Welcome back, Alchemist!");
         localStorage.setItem("token", data.token);
+        window.location.href = '/dashboard.html';
       } catch (err) {
         alert(`Error: ${err.message}`);
+      } finally {
+        button.disabled = false;
+        button.innerHTML = originalButtonText;
       }
     });
   }
-  
+
   // Handle Forgot Password Form Submission
   if (forgotPasswordForm) {
       forgotPasswordForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          const email = document.getElementById('email').value;
+          const button = forgotPasswordForm.querySelector('.auth-btn');
+          const originalButtonText = button.innerHTML;
           try {
-              const res = await fetch(`${API_URL}/forgot-password`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email }),
-              });
-              const data = await res.json();
-              if (!res.ok) {
-                  throw new Error(data.msg || 'Something went wrong.');
-              }
-              alert(data.msg);
+            button.disabled = true;
+            button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Sending...`;
+            const email = document.getElementById('email').value;
+            const res = await fetch(`${API_URL}/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            const data = await res.json();
+            if (!res.ok) { throw new Error(data.msg || 'Something went wrong.'); }
+            alert(data.msg);
           } catch (err) {
               alert(`Error: ${err.message}`);
+          } finally {
+            button.disabled = false;
+            button.innerHTML = originalButtonText;
           }
       });
   }
@@ -139,32 +162,36 @@ document.addEventListener("DOMContentLoaded", () => {
   if (resetPasswordForm) {
       resetPasswordForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          const password = document.getElementById('password').value;
-          const confirmPassword = document.getElementById('confirm-password').value;
-
-          if (password !== confirmPassword) {
-              return alert('Passwords do not match.');
-          }
-
-          const resetToken = new URLSearchParams(window.location.search).get('token');
-          if (!resetToken) {
-              return alert('Error: No reset token found in URL.');
-          }
-
+          const button = resetPasswordForm.querySelector('.auth-btn');
+          const originalButtonText = button.innerHTML;
           try {
-              const res = await fetch(`${API_URL}/reset-password/${resetToken}`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ password }),
-              });
-              const data = await res.json();
-              if (!res.ok) {
-                  throw new Error(data.msg || 'Something went wrong.');
-              }
-              alert(data.msg);
-              window.location.href = 'auth.html';
+            button.disabled = true;
+            button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Updating...`;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            if (password !== confirmPassword) {
+                alert('Passwords do not match.');
+            } else {
+                const resetToken = new URLSearchParams(window.location.search).get('token');
+                if (!resetToken) {
+                    alert('Error: No reset token found in URL.');
+                } else {
+                    const res = await fetch(`${API_URL}/reset-password/${resetToken}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ password }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) { throw new Error(data.msg || 'Something went wrong.'); }
+                    alert(data.msg);
+                    window.location.href = 'auth.html';
+                }
+            }
           } catch (err) {
               alert(`Error: ${err.message}`);
+          } finally {
+            button.disabled = false;
+            button.innerHTML = originalButtonText;
           }
       });
   }

@@ -6,6 +6,7 @@ const passport = require('passport');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer'); 
 const User = require('../models/User');
+const path = require('path');
 
 // --- SIGN UP ROUTE ---
 router.post('/signup', async (req, res) => {
@@ -15,13 +16,36 @@ router.post('/signup', async (req, res) => {
         if (user) {
             return res.status(400).json({ msg: 'User with this email already exists' });
         }
-        user = new User({ name, email, password });
+        
+        const verificationToken = crypto.randomBytes(20).toString('hex');
+
+        user = new User({
+            name,
+            email,
+            password,
+            verificationToken: verificationToken,
+        });
+
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
         await user.save();
-        const payload = { user: { id: user.id } };
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5h' });
-        res.status(201).json({ token });
+
+        const transporter = nodemailer.createTransport({
+            host: "smtp.sendgrid.net", port: 587,
+            auth: { user: "apikey", pass: process.env.SENDGRID_API_KEY },
+        });
+        
+        const verificationURL = `http://localhost:5000/api/auth/verify/${verificationToken}`;
+        
+        await transporter.sendMail({
+            from: process.env.FROM_EMAIL,
+            to: user.email,
+            subject: 'Verify Your Email for Alchemist\'s Grimoire',
+            text: `Thank you for registering! Please click the following link to verify your email address:\n\n${verificationURL}`,
+        });
+
+        res.status(201).json({ msg: 'Registration successful. Please check your email to verify your account.' });
+
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ msg: 'Server Error' });
@@ -34,18 +58,45 @@ router.post('/signin', async (req, res) => {
     try {
         let user = await User.findOne({ email });
         if (!user || !user.password) {
-            return res.status(400).json({ msg: 'Invalid Credentials.' });
+            return res.status(400).json({ msg: 'Invalid Credentials or please sign in with Google.' });
         }
+
+        if (!user.isVerified) {
+            return res.status(401).json({ msg: 'Please verify your email before logging in.' });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }
+
         const payload = { user: { id: user.id } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5h' });
         res.json({ token });
+
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ msg: 'Server Error' });
+    }
+});
+
+// --- EMAIL VERIFICATION ROUTE ---
+router.get('/verify/:token', async (req, res) => {
+    try {
+        const user = await User.findOne({ verificationToken: req.params.token });
+        if (!user) {
+            return res.status(400).send('<h1>Invalid or expired verification token.</h1>');
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        await user.save();
+
+        res.redirect('/verification-success.html');
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('<h1>Server Error during verification.</h1>');
     }
 });
 
@@ -82,8 +133,7 @@ router.post('/forgot-password', async (req, res) => {
             },
         });
         
-        // This URL should point to your frontend page
-        const resetURL = `http://127.0.0.1:5500/frontend/reset-password.html?token=${token}`;
+        const resetURL = `http://localhost:5000/reset-password.html?token=${token}`;
         
         const mailOptions = {
             from: process.env.FROM_EMAIL,
