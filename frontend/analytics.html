@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html"><i class="fa-solid fa-table-columns"></i></a></li>
+        <li><a href="profile.html"><i class="fa-solid fa-user"></i></a></li>
+        <li><a href="medicines.html"><i class="fa-solid fa-pills"></i></a></li>
+        <li><a href="schedule.html"><i class="fa-solid fa-calendar-check"></i></a></li>
+        <li><a href="analytics.html" class="active"><i class="fa-solid fa-chart-line"></i></a></li>
+        <li><a href="settings.html"><i class="fa-solid fa-gear"></i></a></li>
+      </ul>
+    </aside>
+
+    <main class="dashboard-main">
+      <div class="dashboard-container">
+        <h2 class="dashboard-title"><i class="fa-solid fa-chart-line"></i> Analytics</h2>
+        <hr />
+        <canvas id="adherenceChart" width="400" height="200"></canvas>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const userId = localStorage.getItem("userId");
+
+    async function loadAnalytics() {
+      const res = await fetch("http://localhost:5000/api/analytics/data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await res.json();
+
+      new Chart(document.getElementById("adherenceChart"), {
+        type: "doughnut",
+        data: {
+          labels: ["Taken", "Missed"],
+          datasets: [
+            {
+              data: [data.taken, data.missed],
+              backgroundColor: ["#4ade80", "#f87171"],
+            },
+          ],
+        },
+      });
+    }
+
+    loadAnalytics();
+  </script>
+</body>
+</html>

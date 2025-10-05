@@ -63,23 +63,30 @@ document.addEventListener("DOMContentLoaded", () => {
   if (signupForm) {
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+
       const name = document.getElementById("signup-name").value;
       const email = document.getElementById("signup-email").value;
       const password = document.getElementById("signup-password").value;
+
       try {
-        const res = await fetch(`${API_URL}/signup`, {
+        const res = await fetch("http://localhost:5000/api/auth/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password }),
         });
+
         const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.msg || "Something went wrong");
+
+        if (res.ok) {
+          alert("Signup successful! Please sign in.");
+          // Switch to Sign In tab
+          document.querySelector("[data-tab='signin']").click();
+        } else {
+          alert(data.message || "Signup failed");
         }
-        alert("Success! Welcome to the Grimoire.");
-        localStorage.setItem("token", data.token);
-      } catch (err) {
-        alert(`Error: ${err.message}`);
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Something went wrong. Please try again.");
       }
     });
   }
@@ -88,22 +95,31 @@ document.addEventListener("DOMContentLoaded", () => {
   if (signinForm) {
     signinForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+
       const email = document.getElementById("signin-email").value;
       const password = document.getElementById("signin-password").value;
+
       try {
-        const res = await fetch(`${API_URL}/signin`, {
+        const res = await fetch("http://localhost:5000/api/auth/signin", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
+
         const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.msg || "Something went wrong");
+
+        if (res.ok) {
+          // Store JWT token or user info if returned
+          localStorage.setItem("token", data.token);
+
+          // ✅ Redirect to dashboard
+          window.location.href = "dashboard.html";
+        } else {
+          alert(data.message || "Invalid credentials");
         }
-        alert("Welcome back, Alchemist!");
-        localStorage.setItem("token", data.token);
-      } catch (err) {
-        alert(`Error: ${err.message}`);
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Something went wrong. Please try again.");
       }
     });
   }

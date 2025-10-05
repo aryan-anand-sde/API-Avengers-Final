@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medicines</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head>
+
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html"><i class="fa-solid fa-table-columns"></i></a></li>
+        <li><a href="profile.html"><i class="fa-solid fa-user"></i></a></li>
+        <li><a href="medicines.html" class="active"><i class="fa-solid fa-pills"></i></a></li>
+        <li><a href="schedule.html"><i class="fa-solid fa-calendar-check"></i></a></li>
+        <li><a href="analytics.html"><i class="fa-solid fa-chart-line"></i></a></li>
+        <li><a href="settings.html"><i class="fa-solid fa-gear"></i></a></li>
+      </ul>
+    </aside>
+
+    <main class="dashboard-main">
+      <div class="dashboard-container">
+        <h2 class="dashboard-title"><i class="fa-solid fa-pills"></i> Your Medicines</h2>
+        <hr />
+        <div id="medicines-list"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const userId = localStorage.getItem("userId");
+
+    async function loadMedicines() {
+      const res = await fetch("http://localhost:5000/api/medicines/list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+
+      const meds = await res.json();
+      const container = document.getElementById("medicines-list");
+
+      container.innerHTML = meds
+        .map(
+          (m) => `
+          <div class="medicine-card">
+            <p><strong>${m.name}</strong> (${m.dosage})</p>
+            <p>Time: ${m.time}</p>
+            <p>Email: ${m.email}</p>
+          </div>
+        `
+        )
+        .join("");
+    }
+
+    loadMedicines();
+  </script>
+</body>
+</html>

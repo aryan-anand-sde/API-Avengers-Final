@@ -1,3 +1,38 @@
+const token = localStorage.getItem("token");
+
+document
+  .getElementById("add-medicine-form")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const data = {
+      userId: localStorage.getItem("userId"),
+      name: document.getElementById("medicine-name").value,
+      dosage: document.getElementById("medicine-dosage").value,
+      time: document.getElementById("medicine-time").value,
+      email: document.getElementById("reminder-email").value,
+    };
+
+    await fetch("http://localhost:5000/api/medicines/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    alert("Medicine added successfully!");
+    e.target.reset();
+  });
+
+
+
+
+
+
+
+
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
   emailjs.init("LQ3x9EcOs1j3fzcBD");
 

@@ -348,3 +348,118 @@ footer { border-top: 1px solid var(--border-color); padding: 40px 5%; text-align
     .auth-main { padding: 40px 20px; }
 }
 
+ 
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #12002b;
+    color: #fff;
+    display: flex;
+}
+
+.dashboard-layout {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 80px;
+    background-color: #1a0033;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    gap: 20px;
+}
+
+.sidebar-logo {
+    font-size: 1.8rem;
+    color: #a855f7;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.sidebar-menu li {
+    margin: 25px 0;
+}
+
+.sidebar-menu a {
+    color: #bbb;
+    font-size: 1.4rem;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    color: #a855f7;
+    transform: scale(1.1);
+}
+
+.dashboard-main {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.dashboard-title {
+    color: #a855f7;
+} 
+
+/* Reuse existing list structure styles */
+.profile-card-list {
+    display: grid;
+    gap: 16px;
+}
+
+/* Style for individual profile items (like medicine items) */
+.profile-item {
+    background-color: var(--bg-color); /* Darker background */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    transition: transform 0.2s ease;
+}
+
+.profile-item:hover {
+    transform: translateY(-2px);
+}
+
+.profile-item h3 {
+    color: var(--gradient-start); /* Use purple for the title */
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.profile-item h3 i {
+    margin-right: 8px;
+    color: var(--purple);
+}
+
+.profile-item p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    /* Make the content inline or block as needed */
+    margin: 4px 0; 
+}
+
+.profile-item p strong {
+    color: var(--text-color); /* Make the labels stand out */
+    margin-right: 5px;
+}
+
+/* Remove the old, less structured .profile-info styles if they conflict */
+/* If you still have this block, you should remove it or comment it out: */
+/*
+.profile-info {
+    font-size: 1.1rem;
+    line-height: 2.2;
+    padding: 10px 0;
+}
+*/

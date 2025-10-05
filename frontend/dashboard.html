@@ -1,48 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Medicines Dashboard</title>
     <link rel="icon" href="/assets/title image.png" type="image/png">
+    <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
-    <div id="background-container">
-        <div id="sparkle-container"></div>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html" class="active"><i class="fa-solid fa-table-columns"></i></a></li>
+                <li><a href="profile.html"><i class="fa-solid fa-user"></i></a></li>
+                <li><a href="medicines.html"><i class="fa-solid fa-pills"></i></a></li>
+                <li><a href="schedule.html"><i class="fa-solid fa-calendar-check"></i></a></li>
+                <li><a href="analytics.html"><i class="fa-solid fa-chart-line"></i></a></li>
+                <li><a href="settings.html"><i class="fa-solid fa-gear"></i></a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <div class="dashboard-container">
+                <h2 class="dashboard-title"><i class="fa-solid fa-capsules"></i> Medicines Dashboard</h2>
+                <hr>
+                <form id="add-medicine-form" class="add-medicine-form">
+                    <input type="text" id="medicine-name" placeholder="Medicine Name" required>
+                    <input type="text" id="medicine-dosage" placeholder="Dosage" required>
+                    <input type="time" id="medicine-time" required>
+                    <input type="email" id="reminder-email" placeholder="Email for reminders" required>
+                    <button type="submit" class="btn btn-primary">Add Medicine</button>
+                </form>
+
+                <div id="medicines-list" class="medicines-list">
+                    <!-- Medicines will be dynamically added here -->
+                </div>
+            </div>
+        </main>
     </div>
 
-    <header>
-        <nav class="navbar">
-            <a href="index.html" class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> Alchemist's Grimoire</a>
-            <div class="nav-links">
-                <a href="auth.html">Sign In</a>
-                <a href="auth.html" class="btn btn-primary" style="color: black;">Get Started</a>
-            </div>
-        </nav>
-    </header>
-
-    <main class="dashboard-main">
-        <div class="dashboard-container">
-            <h2 class="dashboard-title"><i class="fa-solid fa-capsules"></i> Medicines Dashboard</h2>
-            <hr>
-            <form id="add-medicine-form" class="add-medicine-form">
-                <input type="text" id="medicine-name" placeholder="Medicine Name" required>
-                <input type="text" id="medicine-dosage" placeholder="Dosage" required>
-                <input type="time" id="medicine-time" required>
-                <input type="email" id="reminder-email" placeholder="Email for reminders" required>
-                <button type="submit" class="btn btn-primary">Add Medicine</button>
-            </form>
-            <div id="medicines-list" class="medicines-list">
-                <!-- Medicines will be dynamically added here -->
-            </div>
-        </div>
-    </main>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="dashboard.js"></script>
 </body>
-
 </html>
