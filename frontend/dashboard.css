@@ -401,6 +401,76 @@ body {
     transform: scale(1.1);
 }
 
+/* Dashboard enhancements */
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 18px 0;
+}
+.controls label { color: var(--text-muted); font-size: 0.95rem; }
+.controls input[type="date"] { padding: 8px 10px; border-radius: 8px; border: 1px solid #3a234a; background: #140620; color: var(--text-color); }
+.controls .btn { padding: 8px 14px; }
+
+.daily-summary { margin: 12px 0 18px 0; }
+.daily-table { width: 100%; border-collapse: collapse; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius: 8px; overflow: hidden; }
+.daily-table thead th { text-align: left; padding: 10px 12px; font-size: 0.9rem; color: var(--text-muted); border-bottom: 1px solid #2b1a35; }
+.daily-table tbody td { padding: 10px 12px; border-bottom: 1px dashed #2b1a35; color: var(--text-color); }
+
+.medicine-item { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid #2b1a35; }
+.medicine-actions { display: flex; gap: 8px; }
+.medicine-actions .btn { padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); color: var(--text-color); }
+.medicine-actions .btn:hover { transform: translateY(-2px); }
+.medicine-actions .btn-delete { background: transparent; color: var(--pink); border: 1px solid rgba(236,72,153,0.08); }
+
+.badge-taken { background: #2b7a78; color: #fff; padding: 6px 10px; border-radius: 16px; font-size: 0.85rem; }
+.badge-missed { background: #e76f51; color: #fff; padding: 6px 10px; border-radius: 16px; font-size: 0.85rem; }
+
+.form-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+.status-pill { padding: 6px 10px; border-radius: 14px; font-weight: 600; font-size: 0.9rem; }
+.status-pending { background: rgba(255,255,255,0.03); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.03); }
+.status-on-time { background: rgba(43,122,120,0.14); color: #bff0ea; border: 1px solid rgba(43,122,120,0.2); }
+.status-late { background: rgba(231,111,81,0.12); color: #ffd6c9; border: 1px solid rgba(231,111,81,0.18); }
+
+/* Dose boxes: small compact tickable boxes for each dose in a day */
+.dose-boxes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.dose-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.01);
+  border: 1px solid rgba(255,255,255,0.03);
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.dose-box input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+}
+.dose-box .dose-label {
+  color: var(--text-color);
+  white-space: nowrap;
+}
+.dose-box input[type="checkbox"]:checked + .dose-label {
+  text-decoration: line-through;
+  color: #999;
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .controls { flex-direction: column; align-items: stretch; }
+  .add-medicine-form { grid-template-columns: 1fr; }
+  .daily-table thead { display: none; }
+  .daily-table tbody td { display: block; width: 100%; }
+}
+
 .dashboard-main {
     flex: 1;
     padding: 40px;
@@ -417,49 +487,3 @@ body {
     gap: 16px;
 }
 
-/* Style for individual profile items (like medicine items) */
-.profile-item {
-    background-color: var(--bg-color); /* Darker background */
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 16px;
-    transition: transform 0.2s ease;
-}
-
-.profile-item:hover {
-    transform: translateY(-2px);
-}
-
-.profile-item h3 {
-    color: var(--gradient-start); /* Use purple for the title */
-    margin-bottom: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-
-.profile-item h3 i {
-    margin-right: 8px;
-    color: var(--purple);
-}
-
-.profile-item p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    /* Make the content inline or block as needed */
-    margin: 4px 0; 
-}
-
-.profile-item p strong {
-    color: var(--text-color); /* Make the labels stand out */
-    margin-right: 5px;
-}
-
-/* Remove the old, less structured .profile-info styles if they conflict */
-/* If you still have this block, you should remove it or comment it out: */
-/*
-.profile-info {
-    font-size: 1.1rem;
-    line-height: 2.2;
-    padding: 10px 0;
-}
-*/

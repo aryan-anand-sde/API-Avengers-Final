@@ -18,7 +18,7 @@
                 <li><a href="dashboard.html" class="active"><i class="fa-solid fa-table-columns"></i></a></li>
                 <li><a href="profile.html"><i class="fa-solid fa-user"></i></a></li>
                 <li><a href="medicines.html"><i class="fa-solid fa-pills"></i></a></li>
-                <li><a href="schedule.html"><i class="fa-solid fa-calendar-check"></i></a></li>
+                <!-- <li><a href="schedule.html"><i class="fa-solid fa-calendar-check"></i></a></li> -->
                 <li><a href="analytics.html"><i class="fa-solid fa-chart-line"></i></a></li>
                 <li><a href="settings.html"><i class="fa-solid fa-gear"></i></a></li>
             </ul>
@@ -29,13 +29,23 @@
             <div class="dashboard-container">
                 <h2 class="dashboard-title"><i class="fa-solid fa-capsules"></i> Medicines Dashboard</h2>
                 <hr>
-                <form id="add-medicine-form" class="add-medicine-form">
-                    <input type="text" id="medicine-name" placeholder="Medicine Name" required>
-                    <input type="text" id="medicine-dosage" placeholder="Dosage" required>
-                    <input type="time" id="medicine-time" required>
-                    <input type="email" id="reminder-email" placeholder="Email for reminders" required>
-                    <button type="submit" class="btn btn-primary">Add Medicine</button>
-                </form>
+                                <form id="add-medicine-form" class="add-medicine-form">
+                                        <input type="text" id="medicine-name" placeholder="Medicine Name" required>
+                                        <input type="text" id="medicine-dosage" placeholder="Dosage" required>
+                                        <input type="time" id="medicine-time" required>
+                                        <input type="email" id="reminder-email" placeholder="Email for reminders" required>
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary">Add Medicine</button>
+                                        </div>
+                                </form>
+
+                <div class="controls">
+                  <label>From <input type="date" id="startDate"></label>
+                  <label>To <input type="date" id="endDate"></label>
+                  <button id="showDaily" class="btn">Show daily</button>
+                </div>
+
+                <div id="daily-summary" class="daily-summary"></div>
 
                 <div id="medicines-list" class="medicines-list">
                     <!-- Medicines will be dynamically added here -->
