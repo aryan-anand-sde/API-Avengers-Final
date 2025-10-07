@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,20 +30,20 @@
             <div class="dashboard-container">
                 <h2 class="dashboard-title"><i class="fa-solid fa-capsules"></i> Medicines Dashboard</h2>
                 <hr>
-                                <form id="add-medicine-form" class="add-medicine-form">
-                                        <input type="text" id="medicine-name" placeholder="Medicine Name" required>
-                                        <input type="text" id="medicine-dosage" placeholder="Dosage" required>
-                                        <input type="time" id="medicine-time" required>
-                                        <input type="email" id="reminder-email" placeholder="Email for reminders" required>
-                                        <div class="form-actions">
-                                            <button type="submit" class="btn btn-primary">Add Medicine</button>
-                                        </div>
-                                </form>
+                <form id="add-medicine-form" class="add-medicine-form">
+                    <input type="text" id="medicine-name" placeholder="Medicine Name" required>
+                    <input type="text" id="medicine-dosage" placeholder="Dosage" required>
+                    <input type="time" id="medicine-time" required>
+                    <input type="email" id="reminder-email" placeholder="Email for reminders" required>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Medicine</button>
+                    </div>
+                </form>
 
                 <div class="controls">
-                  <label>From <input type="date" id="startDate"></label>
-                  <label>To <input type="date" id="endDate"></label>
-                  <button id="showDaily" class="btn">Show daily</button>
+                    <label>From <input type="date" id="startDate"></label>
+                    <label>To <input type="date" id="endDate"></label>
+                    <button id="showDaily" class="btn">Show daily</button>
                 </div>
 
                 <div id="daily-summary" class="daily-summary"></div>
@@ -57,4 +58,5 @@
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="dashboard.js"></script>
 </body>
+
 </html>

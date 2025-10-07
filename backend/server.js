@@ -2,20 +2,17 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import passport from "passport";
-import path from "path" // NEW: Import the 'path' module
+import path from "path"; // NEW: Import the 'path' module
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import auth from "./routes/auth.js";
 
-
 dotenv.config();
-
 
 import userRoutes from "./routes/userRoutes.js";
 import medicineRoutes from "./routes/medicineRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import { startReminderScheduler } from "./utils/reminderScheduler.js";
-
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,22 +23,22 @@ app.use(express.json());
 // NEW: Serve static files from the parent directory (which contains frontend files)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, '..')));
+app.use(express.static(path.join(__dirname, "..")));
 
-import './passport-config.js'; // This executes the passport configuration file
-app.use(express.static(path.join(__dirname, '../frontend')));
-app.use('/assets', express.static(path.join(__dirname, '../assets')));
+import "./passport-config.js"; // This executes the passport configuration file
+app.use(express.static(path.join(__dirname, "../frontend")));
+app.use("/assets", express.static(path.join(__dirname, "../assets")));
 app.use(passport.initialize());
 
 // --- Database Connection ---
 const connectDB = async () => {
-    try {
-        await mongoose.connect("mongodb://localhost:27017");
-        console.log('MongoDB Connected... ');
-    } catch (err) {
-        console.error(err.message);
-        process.exit(1);
-    }
+  try {
+    await mongoose.connect("mongodb://localhost:27017");
+    console.log("MongoDB Connected... ");
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
 };
 connectDB();
 
@@ -54,8 +51,8 @@ app.use("/api/analytics", analyticsRoutes);
 startReminderScheduler();
 
 // --- API Routes ---
-app.get('/', (req, res) => res.send('API is running... ✨'));
-app.use('/api/auth', auth);
+app.get("/", (req, res) => res.send("API is running... ✨"));
+app.use("/api/auth", auth);
 
 // The problematic app.get('*', ...) line has been REMOVED from here.
 // express.static will now handle all frontend file requests.
@@ -64,4 +61,6 @@ app.use('/api/auth', auth);
 // express.static will now handle all frontend file requests.
 
 // --- Start the Server ---
-app.listen(PORT, () => console.log(`Server started on http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`Server started on http://localhost:${PORT}`)
+);
