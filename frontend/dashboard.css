@@ -93,7 +93,7 @@ body {
   box-shadow: 0 4px 15px rgba(168, 85, 247, 0.5);
 }
 
-.btn-gradient { background: linear-gradient(90deg, var(--gradient-start), var(--pink)); color: black; }
+.btn-gradient { background: linear-gradient(90deg, var(--gradient-start), var(--pink)); color: white; }
 .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(168, 85, 247, 0.6); }
 
 .btn-secondary { background-color: transparent; color: var(--text-color); border: 1px solid var(--border-color); }
@@ -117,17 +117,10 @@ header {
   z-index: 10;
 }
 .logo {
-    font-size: 1.2rem;
-    font-weight: 700;
-    text-decoration: none;
-    
-    /* ✅ UPDATED GRADIENT to match the main title */
-    background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
-    
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    color: transparent;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  text-decoration: none;
 }
 .logo i {
   color: var(--gradient-start);
@@ -267,7 +260,7 @@ footer { border-top: 1px solid var(--border-color); padding: 40px 5%; text-align
 .footer-content { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 0.85rem; }
 
 /* --- Auth Page Styles --- */
-.auth-main { display: flex; align-items: flex-start; justify-content: center; padding-top: 7px; min-height: 80vh; }
+.auth-main { display: flex; align-items: flex-start; justify-content: center; padding-top: 80px; min-height: 80vh; }
 .auth-container { max-width: 400px; width: 100%; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 32px; }
 .auth-title { text-align: center; margin-bottom: 24px; font-weight: 600; }
 .auth-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
@@ -283,20 +276,18 @@ footer { border-top: 1px solid var(--border-color); padding: 40px 5%; text-align
 /* CORRECTED: Unified style for text/email inputs and the password wrapper */
 .form-group input[type="text"],
 .form-group input[type="email"],
-.form-group input[type="password"],
 .password-wrapper {
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 14px; /* Increased padding for a larger size */
-    background-color: #100E17; /* Changed background to white */
+    padding: 10px;
+    background-color: var(--bg-color);
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 1rem;
-    color: white; /* Changed text color to black */
+    color: var(--text-color);
     transition: all 0.3s ease;
 }
-
 
 /* CORRECTED: Unified focus style */
 .form-group input[type="text"]:focus,
@@ -355,5 +346,144 @@ footer { border-top: 1px solid var(--border-color); padding: 40px 5%; text-align
     .hero-buttons { flex-direction: column; width: 100%; max-width: 300px; }
     .navbar { flex-direction: column; gap: 20px; }
     .auth-main { padding: 40px 20px; }
+}
+
+ 
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #12002b;
+    color: #fff;
+    display: flex;
+}
+
+.dashboard-layout {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 80px;
+    background-color: #1a0033;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    gap: 20px;
+}
+
+.sidebar-logo {
+    font-size: 1.8rem;
+    color: #a855f7;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.sidebar-menu li {
+    margin: 25px 0;
+}
+
+.sidebar-menu a {
+    color: #bbb;
+    font-size: 1.4rem;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    color: #a855f7;
+    transform: scale(1.1);
+}
+
+/* Dashboard enhancements */
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 18px 0;
+}
+.controls label { color: var(--text-muted); font-size: 0.95rem; }
+.controls input[type="date"] { padding: 8px 10px; border-radius: 8px; border: 1px solid #3a234a; background: #140620; color: var(--text-color); }
+.controls .btn { padding: 8px 14px; }
+
+.daily-summary { margin: 12px 0 18px 0; }
+.daily-table { width: 100%; border-collapse: collapse; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius: 8px; overflow: hidden; }
+.daily-table thead th { text-align: left; padding: 10px 12px; font-size: 0.9rem; color: var(--text-muted); border-bottom: 1px solid #2b1a35; }
+.daily-table tbody td { padding: 10px 12px; border-bottom: 1px dashed #2b1a35; color: var(--text-color); }
+
+.medicine-item { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid #2b1a35; }
+.medicine-actions { display: flex; gap: 8px; }
+.medicine-actions .btn { padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); color: var(--text-color); }
+.medicine-actions .btn:hover { transform: translateY(-2px); }
+.medicine-actions .btn-delete { background: transparent; color: var(--pink); border: 1px solid rgba(236,72,153,0.08); }
+
+.badge-taken { background: #2b7a78; color: #fff; padding: 6px 10px; border-radius: 16px; font-size: 0.85rem; }
+.badge-missed { background: #e76f51; color: #fff; padding: 6px 10px; border-radius: 16px; font-size: 0.85rem; }
+
+.form-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+.status-pill { padding: 6px 10px; border-radius: 14px; font-weight: 600; font-size: 0.9rem; }
+.status-pending { background: rgba(255,255,255,0.03); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.03); }
+.status-on-time { background: rgba(43,122,120,0.14); color: #bff0ea; border: 1px solid rgba(43,122,120,0.2); }
+.status-late { background: rgba(231,111,81,0.12); color: #ffd6c9; border: 1px solid rgba(231,111,81,0.18); }
+
+/* Dose boxes: small compact tickable boxes for each dose in a day */
+.dose-boxes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.dose-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.01);
+  border: 1px solid rgba(255,255,255,0.03);
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.dose-box input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+}
+.dose-box .dose-label {
+  color: var(--text-color);
+  white-space: nowrap;
+}
+.dose-box input[type="checkbox"]:checked + .dose-label {
+  text-decoration: line-through;
+  color: #999;
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .controls { flex-direction: column; align-items: stretch; }
+  .add-medicine-form { grid-template-columns: 1fr; }
+  .daily-table thead { display: none; }
+  .daily-table tbody td { display: block; width: 100%; }
+}
+
+.dashboard-main {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.dashboard-title {
+    color: #a855f7;
+} 
+
+/* Reuse existing list structure styles */
+.profile-card-list {
+    display: grid;
+    gap: 16px;
 }
 

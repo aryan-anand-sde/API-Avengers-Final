@@ -1,13 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const passport = require('passport');
-const crypto = require('crypto');
-const nodemailer = require('nodemailer'); 
-const User = require('../models/User');
-const path = require('path');
+import express from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import passport from "passport";
+import User from "../models/User.js";
+import crypto from "crypto";
+import nodemailer from "nodemailer"; 
+import path from "path";
+// Assuming you have an auth middleware file
+import authMiddleware from "../middleware/auth.js"; 
 
+const router = express.Router();
 // --- SIGN UP ROUTE ---
 router.post('/signup', async (req, res) => {
     const { name, email, password } = req.body;
@@ -73,8 +75,35 @@ router.post('/signin', async (req, res) => {
         const payload = { user: { id: user.id } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5h' });
         res.json({ token });
+      
+          } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});
+    
 
-    } catch (err) {
+router.post('/me', authMiddleware, async (req, res) => {
+    try {
+        // The user ID is added to req.user by the authMiddleware
+        const user = await User.findById(req.user.id).select('-password');
+
+        if (!user) {
+             return res.status(404).json({ msg: 'User not found' });
+        }
+
+        // Return only the necessary profile details
+        res.json({
+            name: user.name,
+            email: user.email,
+            // NOTE: The frontend code expects `user.token` but the token itself 
+            // is not a property of the User model. Returning the user ID here 
+            // as a placeholder for confirmation. You should adjust the frontend 
+            // if you don't need the token echoed back.
+            id: user.id 
+        });
+      
+      } catch (err) {
         console.error(err.message);
         res.status(500).json({ msg: 'Server Error' });
     }
@@ -100,7 +129,12 @@ router.get('/verify/:token', async (req, res) => {
     }
 });
 
+
 // --- GOOGLE OAUTH ROUTES ---
+
+router.get('/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+);
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/auth.html', session: false }), (req, res) => {
@@ -181,4 +215,4 @@ router.post('/reset-password/:token', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (signupForm) {
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+
       const button = signupForm.querySelector('.auth-btn');
       const originalButtonText = button.innerHTML;
       try {
@@ -89,12 +90,14 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password }),
         });
+
         const data = await res.json();
         if (!res.ok) { throw new Error(data.msg || "Something went wrong"); }
         alert(data.msg);
       } catch (err) {
         alert(`Error: ${err.message}`);
       } finally {
+        document.querySelector("[data-tab='signin']").click();
         button.disabled = false;
         button.innerHTML = originalButtonText;
       }
@@ -117,6 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
+
         const data = await res.json();
         if (!res.ok) { throw new Error(data.msg || "Something went wrong"); }
         alert("Welcome back, Alchemist!");
@@ -125,6 +129,10 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (err) {
         alert(`Error: ${err.message}`);
       } finally {
+        localStorage.setItem("token", data.token);
+
+          // ✅ Redirect to dashboard
+        window.location.href = "dashboard.html";
         button.disabled = false;
         button.innerHTML = originalButtonText;
       }
