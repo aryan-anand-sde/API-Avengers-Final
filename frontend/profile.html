@@ -1,86 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User Profile</title>
-  <link rel="stylesheet" href="dashboard.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+     
+    <meta charset="UTF-8" />
+     
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>User Profile</title>
+     
+    <link rel="stylesheet" href="dashboard.css" />
+     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
 
 <body>
-  <div class="dashboard-layout">
-        <aside class="sidebar">
-      <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
-      <ul class="sidebar-menu">
-        <li><a href="dashboard.html"><i class="fa-solid fa-table-columns"></i></a></li>
-        <li><a href="profile.html" class="active"><i class="fa-solid fa-user"></i></a></li>
-        <li><a href="medicines.html"><i class="fa-solid fa-pills"></i></a></li>
-<!--         <li><a href="schedule.html"><i class="fa-solid fa-calendar-check"></i></a></li> -->
-        <li><a href="analytics.html"><i class="fa-solid fa-chart-line"></i></a></li>
-        <li><a href="settings.html"><i class="fa-solid fa-gear"></i></a></li>
-      </ul>
-    </aside>
+      <div class="dashboard-layout">
+                <aside class="sidebar">
+                  <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
+                  <ul class="sidebar-menu">
+                        <li><a href="dashboard.html"><i class="fa-solid fa-table-columns"></i></a></li>
+                        <li><a href="profile.html" class="active"><i class="fa-solid fa-user"></i></a></li>
+                        <li><a href="medicines.html"><i class="fa-solid fa-pills"></i></a></li>
+                <!--         <li><a href="schedule.html"><i class="fa-solid fa-calendar-check"></i></a></li> -->
+                        <li><a href="analytics.html"><i class="fa-solid fa-chart-line"></i></a></li>
+                        <li><a href="settings.html"><i class="fa-solid fa-gear"></i></a></li>
+                      </ul>
+                </aside>
 
-    <main class="dashboard-main">
-      <div class="dashboard-container">
-        <h2 class="dashboard-title"><i class="fa-solid fa-user"></i> User Profile</h2>
-        <hr />
+            <main class="dashboard-main">
+                  <div class="dashboard-container">
+                        <h2 class="dashboard-title"><i class="fa-solid fa-user"></i> User Profile</h2>
+                       
+                <hr />
 
-        <div id="profile-info" class="profile-info">Loading user info...</div>
-      </div>
-    </main>
-  </div>
+                        <div id="profile-info" class="profile-info">Loading user info...</div>
+                     
+            </div>
+                </main>
+          </div>
 
-  <script>
-    const token = localStorage.getItem("token");
-    const container = document.getElementById("profile-info");
-    const API_ENDPOINT = "http://localhost:5000/api/auth/me"; // Note: Assumes your main app.js mounts auth routes at /api/auth
+     
+    <script>
+        const token = localStorage.getItem("token");
+        const container = document.getElementById("profile-info");
+        const API_ENDPOINT = "http://localhost:5000/api/auth/me"; // Note: Assumes your main app.js mounts auth routes at /api/auth
 
-    // 1. Initial check for token
-    if (!token) {
-      container.innerHTML = "<p>Error: No login token found. Please <a href='auth.html'>sign in</a>.</p>";
-    }
+        // 1. Initial check for token
+        if (!token) {
+            container.innerHTML = "<p>Error: No login token found. Please <a href='auth.html'>sign in</a>.</p>";
+        }
 
-    async function loadProfile() {
-      if (!token) return; // Exit if token is missing
+        async function loadProfile() {
+            if (!token) return; // Exit if token is missing
 
-      try {
-        const res = await fetch(API_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }), // Send the token in the request body
-        });
+            try {
+                const res = await fetch(API_ENDPOINT, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token }), // Send the token in the request body
+                });
 
-        // 2. Check for non-200 HTTP status (e.g., 401 Unauthorized)
-        if (!res.ok) {
-          // Try to get the JSON error message from the backend
-          const errorData = await res.json().catch(() => ({ msg: 'Token might be invalid or expired.' }));
-          
-          container.innerHTML = `<p style="color: red;">Error fetching profile: Status ${res.status}.</p><p>${errorData.msg || 'Please log in again.'}</p>`;
-          return;
-        }
+                // 2. Check for non-200 HTTP status (e.g., 401 Unauthorized)
+                if (!res.ok) {
+                    // Try to get the JSON error message from the backend
+                    const errorData = await res.json().catch(() => ({ msg: 'Token might be invalid or expired.' }));
 
-        const user = await res.json();
-        
-        // 3. Final data check and rendering
-        if (user && user.email) {
-          container.innerHTML = `
+                    container.innerHTML = `<p style="color: red;">Error fetching profile: Status ${res.status}.</p><p>${errorData.msg || 'Please log in again.'}</p>`;
+                    return;
+                }
+
+                const user = await res.json();
+
+                // 3. Final data check and rendering
+                if (user && user.email) {
+                    container.innerHTML = `
             <p><strong>Name:</strong> ${user.name || "N/A"}</p>
             <p><strong>Email:</strong> ${user.email}</p>
             <p><strong>User ID:</strong> ${user.id || "N/A"}</p>
           `;
-        } else {
-          container.innerHTML = "<p>Error: API returned successfully but missing user details (Name/Email).</p>";
-        }
+                } else {
+                    container.innerHTML = "<p>Error: API returned successfully but missing user details (Name/Email).</p>";
+                }
 
-      } catch (error) {
-        console.error("Fetch failed:", error);
-        container.innerHTML = `<p style="color: red;">Network Error: Could not connect to the API server. Is the backend running?</p>`;
-      }
-    }
+            } catch (error) {
+                console.error("Fetch failed:", error);
+                container.innerHTML = `<p style="color: red;">Network Error: Could not connect to the API server. Is the backend running?</p>`;
+            }
+        }
 
-    loadProfile();
-  </script>
+        loadProfile();
+    </script>
 </body>
+
 </html>

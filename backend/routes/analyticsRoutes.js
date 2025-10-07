@@ -20,10 +20,10 @@ router.post("/data", auth, async (req, res) => {
     let end = endDate ? new Date(endDate) : null;
     if (start && end) {
       // normalize end to end of day
-      end.setHours(23,59,59,999);
+      end.setHours(23, 59, 59, 999);
       query.$or = [
         { scheduledDate: { $gte: start, $lte: end } },
-        { date: { $gte: start, $lte: end } }
+        { date: { $gte: start, $lte: end } },
       ];
     }
 
@@ -42,23 +42,40 @@ router.post("/data", auth, async (req, res) => {
 
       for (const day of days) {
         const dayStart = new Date(day);
-        dayStart.setHours(0,0,0,0);
+        dayStart.setHours(0, 0, 0, 0);
         const dayEnd = new Date(day);
-        dayEnd.setHours(23,59,59,999);
+        dayEnd.setHours(23, 59, 59, 999);
 
-        const dayQuery = { userId, $or: [
-          { scheduledDate: { $gte: dayStart, $lte: dayEnd } },
-          { date: { $gte: dayStart, $lte: dayEnd } }
-        ] };
+        const dayQuery = {
+          userId,
+          $or: [
+            { scheduledDate: { $gte: dayStart, $lte: dayEnd } },
+            { date: { $gte: dayStart, $lte: dayEnd } },
+          ],
+        };
 
         const dayTotal = await Medicine.countDocuments(dayQuery);
-        const dayTaken = await Medicine.countDocuments({ ...dayQuery, taken: true });
+        const dayTaken = await Medicine.countDocuments({
+          ...dayQuery,
+          taken: true,
+        });
 
-        daily.push({ date: dayStart.toISOString().slice(0,10), total: dayTotal, taken: dayTaken, missed: dayTotal - dayTaken });
+        daily.push({
+          date: dayStart.toISOString().slice(0, 10),
+          total: dayTotal,
+          taken: dayTaken,
+          missed: dayTotal - dayTaken,
+        });
       }
     }
 
-    res.json({ adherenceRate: total > 0 ? (taken / total) * 100 : 0, total, taken, missed, daily });
+    res.json({
+      adherenceRate: total > 0 ? (taken / total) * 100 : 0,
+      total,
+      taken,
+      missed,
+      daily,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error fetching analytics" });
