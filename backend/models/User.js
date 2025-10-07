@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 // models/User.js
 // import Medicine from "./medicineModel";
 import mongoose from "mongoose";
-=======
-const mongoose = require('mongoose');
->>>>>>> origin/main
+
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -16,16 +13,8 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-<<<<<<< HEAD
     medId: { type: mongoose.Schema.Types.ObjectId, ref: "Medicine" },
-    password: { type: String, required: false }, // Password is no longer required
-    googleId: { type: String },
-    token: {type : String}},
-    { timestamps: true });
-
-
-export default mongoose.model('User', UserSchema);
-=======
+      token: {type : String}},
     password: {
         type: String,
         required: false,
@@ -49,5 +38,7 @@ export default mongoose.model('User', UserSchema);
     },
 }, { timestamps: true });
 
-module.exports = mongoose.model('User', UserSchema);
->>>>>>> origin/main
+
+
+export default mongoose.model('User', UserSchema);
+

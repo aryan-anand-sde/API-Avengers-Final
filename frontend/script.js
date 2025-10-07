@@ -76,15 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (signupForm) {
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-<<<<<<< HEAD
 
-      const name = document.getElementById("signup-name").value;
-      const email = document.getElementById("signup-email").value;
-      const password = document.getElementById("signup-password").value;
-
-      try {
-        const res = await fetch("http://localhost:5000/api/auth/signup", {
-=======
       const button = signupForm.querySelector('.auth-btn');
       const originalButtonText = button.innerHTML;
       try {
@@ -94,34 +86,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const email = document.getElementById("signup-email").value;
         const password = document.getElementById("signup-password").value;
         const res = await fetch(`${API_URL}/signup`, {
->>>>>>> origin/main
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password }),
         });
 
         const data = await res.json();
-<<<<<<< HEAD
-
-        if (res.ok) {
-          alert("Signup successful! Please sign in.");
-          // Switch to Sign In tab
-          document.querySelector("[data-tab='signin']").click();
-        } else {
-          alert(data.message || "Signup failed");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        alert("Something went wrong. Please try again.");
-=======
         if (!res.ok) { throw new Error(data.msg || "Something went wrong"); }
         alert(data.msg);
       } catch (err) {
         alert(`Error: ${err.message}`);
       } finally {
+        document.querySelector("[data-tab='signin']").click();
         button.disabled = false;
         button.innerHTML = originalButtonText;
->>>>>>> origin/main
       }
     });
   }
@@ -130,14 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (signinForm) {
     signinForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-<<<<<<< HEAD
-
-      const email = document.getElementById("signin-email").value;
-      const password = document.getElementById("signin-password").value;
-
-      try {
-        const res = await fetch("http://localhost:5000/api/auth/signin", {
-=======
       const button = signinForm.querySelector('.auth-btn');
       const originalButtonText = button.innerHTML;
       try {
@@ -146,28 +116,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const email = document.getElementById("signin-email").value;
         const password = document.getElementById("signin-password").value;
         const res = await fetch(`${API_URL}/signin`, {
->>>>>>> origin/main
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
 
         const data = await res.json();
-<<<<<<< HEAD
-
-        if (res.ok) {
-          // Store JWT token or user info if returned
-          localStorage.setItem("token", data.token);
-
-          // ✅ Redirect to dashboard
-          window.location.href = "dashboard.html";
-        } else {
-          alert(data.message || "Invalid credentials");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        alert("Something went wrong. Please try again.");
-=======
         if (!res.ok) { throw new Error(data.msg || "Something went wrong"); }
         alert("Welcome back, Alchemist!");
         localStorage.setItem("token", data.token);
@@ -175,9 +129,12 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (err) {
         alert(`Error: ${err.message}`);
       } finally {
+        localStorage.setItem("token", data.token);
+
+          // ✅ Redirect to dashboard
+        window.location.href = "dashboard.html";
         button.disabled = false;
         button.innerHTML = originalButtonText;
->>>>>>> origin/main
       }
     });
   }
