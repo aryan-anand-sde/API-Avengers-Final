@@ -20,6 +20,8 @@
 
 > **Dashboard :** ![alt text](/assets/Dashboard%20ss.png)
 
+> **Sample Reminder Email** ![Hello ji](/assets/Sample%20Email.jpg)
+
 ---
 
 ---
