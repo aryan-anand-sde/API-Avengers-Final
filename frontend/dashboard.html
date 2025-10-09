@@ -5,23 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medicines Dashboard</title>
     <link rel="icon" href="/assets/title image.png" type="image/png">
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="pages.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <div class="dashboard-layout">
+        <!-- Sidebar -->
         <aside class="sidebar">
-            <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
-            <ul class="sidebar-menu">
-                <li><a href="dashboard.html" class="active"><i class="fa-solid fa-table-columns"></i></a></li>
-                <li><a href="profile.html"><i class="fa-solid fa-user"></i></a></li>
-                <!-- <li><a href="medicines.html"><i class="fa-solid fa-pills"></i></a></li> -->
-                <!-- <li><a href="schedule.html"><i class="fa-solid fa-calendar-check"></i></a></li> -->
-                <li><a href="analytics.html"><i class="fa-solid fa-chart-line"></i></a></li>
-                <li><a href="settings.html"><i class="fa-solid fa-gear"></i></a></li>
-            </ul>
+            <div class="sidebar-top">
+                <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
+                <ul class="sidebar-menu">
+                    <li class="active"><a href="dashboard.html" title="Dashboard"><i class="fa-solid fa-table-columns"></i></a></li>
+                    <li><a href="medicines.html" title="Medicines"><i class="fa-solid fa-pills"></i></a></li>
+                    <li><a href="analytics.html" title="Analytics"><i class="fa-solid fa-chart-line"></i></a></li>
+                </ul>
+            </div>
+            <div class="sidebar-bottom">
+                <ul class="sidebar-menu">
+                    <li><a href="settings.html" title="Settings"><i class="fa-solid fa-gear"></i></a></li>
+                    <li><a href="profile.html" title="Profile"><i class="fa-solid fa-user"></i></a></li>
+                </ul>
+            </div>
         </aside>
 
+        <!-- Main Content -->
         <main class="dashboard-main">
             <div class="dashboard-container">
                 <h2 class="dashboard-title"><i class="fa-solid fa-capsules"></i> Medicines Dashboard</h2>
@@ -45,8 +52,8 @@
                                 <input type="time" class="medicine-time" required>
                             </div>
                         </div>
-                        <input type="text" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'" id="start-date" placeholder="Start Date" required>
-                        <input type="text" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'" id="end-date" placeholder="End Date" required>
+                        <input type="datetime-local" id="start-date" required>
+                        <input type="datetime-local" id="end-date" required>
                     </div>
                     <button type="button" id="add-time-btn" class="btn btn-secondary">Add another time</button>
                     <div class="form-actions">
@@ -66,7 +73,7 @@
                 </div>
 
                 <div id="medicines-list" class="medicines-list">
-                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -91,8 +98,8 @@
                     </div>
                     <input type="email" id="edit-reminder-email" placeholder="Email for reminders" required>
                     <div id="edit-time-inputs-container" class="time-inputs-container"></div>
-                    <input type="date" id="edit-start-date" required>
-                    <input type="date" id="edit-end-date" required>
+                    <input type="datetime-local" id="edit-start-date" required>
+                    <input type="datetime-local" id="edit-end-date" required>
                 </div>
                 <button type="button" id="edit-add-time-btn" class="btn btn-secondary">Add another time</button>
                 <div class="form-actions">

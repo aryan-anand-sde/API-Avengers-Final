@@ -1,199 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Health Adherence</title>
-  <link rel="icon" href="/assets/title image.png" type="image/png">
-  <link rel="stylesheet" href="dashboard.css" />
-  <link rel="stylesheet" href="analytics.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health Adherence - Medicines Dashboard</title>
+    <link rel="icon" href="/assets/title image.png" type="image/png">
+    <link rel="stylesheet" href="pages.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
-  <div class="dashboard-layout">
-    <aside class="sidebar">
-      <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
-      <ul class="sidebar-menu">
-        <li><a href="dashboard.html"><i class="fa-solid fa-table-columns"></i></a></li>
-        <li><a href="profile.html"><i class="fa-solid fa-user"></i></a></li>
-        <!-- <li><a href="medicines.html"><i class="fa-solid fa-pills"></i></a></li> -->
-        <!-- <li><a href="schedule.html" class="active"><i class="fa-solid fa-calendar-check"></i></a></li> -->
-        <li><a href="analytics.html"><i class="fa-solid fa-chart-line"></i></a></li>
-        <li><a href="settings.html"><i class="fa-solid fa-gear"></i></a></li>
-      </ul>
-    </aside>
-
-    <main class="dashboard-main">
-      <div class="dashboard-container adherence-page">
-        <header class="adherence-header">
-          <h2 class="dashboard-title"><i class="fa-solid fa-heart-pulse"></i> Health Adherence</h2>
-          <p class="subtitle">Track how consistently you take your medicines and view tips to stay healthy.</p>
-          <div class="date-range">
-            <label>From <input type="date" id="startDate"></label>
-            <label>To <input type="date" id="endDate"></label>
-            <button id="fetchRange" class="btn">Apply</button>
-          </div>
-        </header>
-
-        <section class="adherence-grid">
-          <div class="adherence-card">
-            <h3>Adherence Score</h3>
-            <canvas id="adherenceChart" width="400" height="300"></canvas>
-          </div>
-
-          <div class="adherence-card stats-card">
-            <h3>Summary</h3>
-            <ul class="stats-list">
-              <li>Total scheduled: <span id="stat-total">0</span></li>
-              <li>Taken: <span id="stat-taken">0</span></li>
-              <li>Missed: <span id="stat-missed">0</span></li>
-              <li>Adherence: <strong id="stat-percent">0%</strong></li>
-            </ul>
-            <hr />
-            <h4>Recent entries</h4>
-            <div id="recent-list" class="recent-list">—</div>
-          </div>
-
-          <div class="adherence-card tips-card">
-            <h3>Tips & Precautions</h3>
-            <ul class="tips-list">
-              <li>Set a daily routine to take medicines at the same time.</li>
-              <li>Use phone reminders or alarms to avoid missing doses.</li>
-              <li>Keep a medicine journal — note time and any side effects.</li>
-              <li>Consult your doctor before stopping any medication.</li>
-              <li>Store medicines in a cool, dry place away from children.</li>
-            </ul>
-          </div>
-        </section>
-      </div>
-    </main>
-  </div>
-
-  <script>
-    const token = localStorage.getItem("token");
-
-    async function loadAnalytics(startDate, endDate) {
-      try {
-        const res = await fetch('http://localhost:5000/api/analytics/data', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, startDate, endDate }),
-        });
-
-        if (!res.ok) throw new Error('Failed to fetch analytics');
-        const json = await res.json();
-
-        const { total, taken, missed, adherenceRate, daily } = json;
-        document.getElementById('stat-total').textContent = total;
-        document.getElementById('stat-taken').textContent = taken;
-        document.getElementById('stat-missed').textContent = missed;
-        document.getElementById('stat-percent').textContent = Math.round(adherenceRate) + '%';
-
-        renderChart(taken, missed, Math.round(adherenceRate));
-        renderDaily(daily);
-      } catch (err) {
-        console.error(err);
-        document.getElementById('recent-list').textContent = 'Could not load data. Make sure backend is running.';
-      }
-    }
-
-    function renderRecent(meds) {
-      if (!meds || meds.length === 0) {
-        document.getElementById('recent-list').innerHTML = '<div class="empty">No records yet</div>';
-        return;
-      }
-
-      // Show last 6 entries
-      const recent = meds.slice().reverse().slice(0, 6);
-      document.getElementById('recent-list').innerHTML = recent.map(r => `
-          <div class="recent-item ${r.taken ? 'taken' : 'missed'}">
-            <div class="ri-left">
-              <strong>${escapeHtml(r.name)}</strong>
-              <div class="meta">${escapeHtml(r.dosage)} • ${escapeHtml(r.time || '-')}</div>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
+                <ul class="sidebar-menu">
+                    <li><a href="dashboard.html" title="Dashboard"><i class="fa-solid fa-table-columns"></i></a></li>
+                    <li><a href="medicines.html" title="Medicines"><i class="fa-solid fa-pills"></i></a></li>
+                    <li class="active"><a href="analytics.html" title="Analytics"><i class="fa-solid fa-chart-line"></i></a></li>
+                </ul>
             </div>
-            <div class="ri-right">${r.taken ? '<span class="badge taken">Taken</span>' : '<span class="badge missed">Missed</span>'}</div>
-          </div>
-        `).join('');
-    }
+            <div class="sidebar-bottom">
+                <ul class="sidebar-menu">
+                    <li><a href="settings.html" title="Settings"><i class="fa-solid fa-gear"></i></a></li>
+                    <li><a href="profile.html" title="Profile"><i class="fa-solid fa-user"></i></a></li>
+                </ul>
+            </div>
+        </aside>
 
-    function renderDaily(daily) {
-      const container = document.getElementById('recent-list');
-      if (!daily || daily.length === 0) {
-        container.innerHTML = '<div class="empty">No records in range</div>';
-        return;
-      }
-
-      container.innerHTML = `<table class="daily-table"><thead><tr><th>Date</th><th>Total</th><th>Taken</th><th>Missed</th></tr></thead><tbody>${daily.map(d => `<tr><td>${d.date}</td><td>${d.total}</td><td>${d.taken}</td><td>${d.missed}</td></tr>`).join('')}</tbody></table>`;
-    }
-
-    function escapeHtml(str) {
-      if (!str && str !== 0) return "";
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-    }
-
-    let adherenceChart = null;
-    function renderChart(taken, missed, percent) {
-      const ctx = document.getElementById('adherenceChart').getContext('2d');
-      const data = {
-        labels: ['Taken', 'Missed'],
-        datasets: [{
-          data: [taken, missed],
-          backgroundColor: ['#2b7a78', '#e76f51'],
-          hoverOffset: 6
-        }]
-      };
-
-      if (adherenceChart) {
-        adherenceChart.data = data;
-        adherenceChart.update();
-        return;
-      }
-
-      adherenceChart = new Chart(ctx, {
-        type: 'doughnut',
-        data,
-        options: {
-          cutout: '65%',
-          plugins: {
-            legend: { position: 'bottom' },
-            tooltip: { enabled: true },
-            beforeDraw: function () { }
-          }
-        }
-      });
-
-      // Draw percent in center using plugin
-      Chart.register({
-        id: 'centerText',
-        afterDraw: function (chart) {
-          const width = chart.width, height = chart.height, ctx = chart.ctx;
-          ctx.restore();
-          const fontSize = (height / 114).toFixed(2);
-          ctx.font = fontSize + "rem sans-serif";
-          ctx.textBaseline = "middle";
-          const text = document.getElementById('stat-percent').textContent || (percent + '%');
-          const textX = Math.round((width - ctx.measureText(text).width) / 2);
-          const textY = height / 2;
-          ctx.fillStyle = '#111';
-          ctx.fillText(text, textX, textY);
-          ctx.save();
-        }
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('fetchRange').addEventListener('click', () => {
-        const startDate = document.getElementById('startDate').value || null;
-        const endDate = document.getElementById('endDate').value || null;
-        loadAnalytics(startDate, endDate);
-      });
-      // initial load (no range = all)
-      loadAnalytics(null, null);
-    });
-  </script>
+        <main class="dashboard-main">
+            <div class="dashboard-container adherence-page">
+                <header class="adherence-header">
+                    <h2 class="dashboard-title"><i class="fa-solid fa-heart-pulse"></i> Health Adherence</h2>
+                    <p class="subtitle">Track how consistently you take your medicines and view tips to stay healthy.</p>
+                    <div class="date-range">
+                        <label>From <input type="date" id="startDate"></label>
+                        <label>To <input type="date" id="endDate"></label>
+                        <button id="fetchRange" class="btn btn-primary">Apply</button>
+                    </div>
+                </header>
+                <hr/>
+                <section class="adherence-grid">
+                    <div class="adherence-card">
+                        <h3>Adherence Score</h3>
+                        <canvas id="adherenceChart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="adherence-card stats-card">
+                        <h3>Summary</h3>
+                        <ul class="stats-list">
+                            <li>Total scheduled: <span id="stat-total">0</span></li>
+                            <li>Taken: <span id="stat-taken">0</span></li>
+                            <li>Missed: <span id="stat-missed">0</span></li>
+                            <li>Adherence: <strong id="stat-percent">0%</strong></li>
+                        </ul>
+                        <hr />
+                        <h4>History</h4>
+                        <div id="recent-list" class="recent-list">—</div>
+                    </div>
+                    <div class="adherence-card tips-card">
+                        <h3>Tips & Precautions</h3>
+                        <ul class="tips-list">
+                            <li>Set a daily routine to take medicines at the same time.</li>
+                            <li>Use phone reminders or alarms to avoid missing doses.</li>
+                            <li>Keep a medicine journal — note time and any side effects.</li>
+                            <li>Consult your doctor before stopping any medication.</li>
+                            <li>Store medicines in a cool, dry place away from children.</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="analytics.js"></script>
 </body>
-
 </html>

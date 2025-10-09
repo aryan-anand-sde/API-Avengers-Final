@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Profile - Medicines Dashboard</title>
+    <title>My Medications - Medicines Dashboard</title>
     <link rel="icon" href="/assets/title image.png" type="image/png">
     <link rel="stylesheet" href="pages.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -15,26 +15,27 @@
                 <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
                 <ul class="sidebar-menu">
                     <li><a href="dashboard.html" title="Dashboard"><i class="fa-solid fa-table-columns"></i></a></li>
-                    <li><a href="medicines.html" title="Medicines"><i class="fa-solid fa-pills"></i></a></li>
+                    <li class="active"><a href="medicines.html" title="My Medications"><i class="fa-solid fa-pills"></i></a></li>
                     <li><a href="analytics.html" title="Analytics"><i class="fa-solid fa-chart-line"></i></a></li>
                 </ul>
             </div>
             <div class="sidebar-bottom">
                 <ul class="sidebar-menu">
                     <li><a href="settings.html" title="Settings"><i class="fa-solid fa-gear"></i></a></li>
-                    <li class="active"><a href="profile.html" title="Profile"><i class="fa-solid fa-user"></i></a></li>
+                    <li><a href="profile.html" title="Profile"><i class="fa-solid fa-user"></i></a></li>
                 </ul>
             </div>
         </aside>
 
         <main class="dashboard-main">
             <div class="dashboard-container">
-                <h2 class="dashboard-title"><i class="fa-solid fa-user"></i> User Profile</h2>
+                <h2 class="dashboard-title"><i class="fa-solid fa-pills"></i> My Medications</h2>
                 <hr />
-                <div id="profile-info" class="profile-info-card">Loading user info...</div>
+                <p>This page will show a complete history of all your medications.</p>
             </div>
         </main>
     </div>
-    <script src="profile.js"></script>
+    <script src="medicines.js"></script>
 </body>
 </html>
+

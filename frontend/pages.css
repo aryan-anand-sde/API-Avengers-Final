@@ -1,0 +1,538 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+    --bg-color: #100e17;
+    --card-bg: #1a1724;
+    --border-color: #2d2a3d;
+    --text-color: #e2e0ee;
+    --text-muted: #948eae;
+    --primary-color: #a855f7;
+    --pink: #ec4899;
+    --success-color: #10b981;
+    --delete-red: #ef4444;
+    --gradient-start: #a855f7;
+    --gradient-end: #eab308;
+}
+
+/* --- Basic Styles --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: "Inter", sans-serif;
+    line-height: 1.6;
+}
+
+/* --- Layout --- */
+.dashboard-layout {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 80px;
+    background-color: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 100;
+}
+
+.sidebar-logo {
+    font-size: 1.8rem;
+    color: var(--gradient-end);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* MODIFIED: Re-added margin for consistent icon spacing */
+.sidebar-menu li {
+    margin: 25px 0;
+    position: relative;
+}
+
+.sidebar-menu a {
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: block;
+    padding: 8px 12px;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu li.active a {
+    color: var(--primary-color);
+}
+
+.sidebar-menu li.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 70%;
+    width: 4px;
+    background-color: var(--primary-color);
+    border-radius: 0 4px 4px 0;
+}
+
+.dashboard-main {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+    margin-left: 80px;
+}
+
+/* --- (The rest of your CSS is the same) --- */
+.dashboard-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 32px;
+}
+
+.dashboard-title {
+    font-size: 2rem;
+    margin-bottom: 16px;
+    background: linear-gradient(90deg, var(--gradient-start), var(--pink), var(--gradient-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+}
+
+.dashboard-title i {
+    color: var(--gradient-start);
+    margin-right: 8px;
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: var(--border-color);
+    margin-bottom: 24px;
+}
+
+.add-medicine-form {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 32px;
+}
+
+.form-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-inputs input,
+.form-inputs select {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+.form-inputs input:focus,
+.form-inputs select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.dosage-group {
+    display: flex;
+    gap: 8px;
+}
+
+.dosage-group input[type="number"] {
+    flex-grow: 1;
+}
+
+.dosage-group select {
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+.time-inputs-container {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.time-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.time-input-group input {
+    flex-grow: 1;
+}
+
+.btn-remove-time {
+    background: transparent;
+    color: var(--pink);
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0 5px;
+}
+
+.btn {
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: white;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    filter: brightness(1.2);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+#add-time-btn,
+#edit-add-time-btn {
+    align-self: flex-start;
+    margin-bottom: 24px;
+    margin-top: 16px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.list-controls {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.list-controls input,
+.list-controls select {
+    flex-grow: 1;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+.medicines-list {
+    display: grid;
+    gap: 16px;
+}
+
+.medicine-item {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.medicine-item--highlighted {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+.medicine-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary-color);
+}
+
+.medicine-content h3 {
+    color: var(--text-color);
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.medicine-content p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+
+.medicine-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action {
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+    background-color: var(--border-color);
+    color: white;
+}
+
+.btn-action.delete:hover {
+    background-color: var(--delete-red);
+    color: white;
+}
+
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.toast {
+    padding: 16px 24px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.4s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-success {
+    background-color: var(--success-color);
+}
+
+.toast-error {
+    background-color: var(--pink);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 32px;
+    width: 90%;
+    max-width: 600px;
+    border: 1px solid var(--border-color);
+}
+
+.modal-title {
+    margin-bottom: 24px;
+}
+
+#edit-medicine-form .form-inputs {
+    margin-bottom: 0;
+}
+
+.profile-info-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.profile-item {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profile-label {
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.profile-value {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.error-message {
+    color: var(--pink);
+    text-align: center;
+    padding: 20px;
+}
+
+.adherence-header {
+    margin-bottom: 24px;
+}
+
+.adherence-header .subtitle {
+    color: var(--text-muted);
+    margin-top: -12px;
+    margin-bottom: 24px;
+}
+
+.date-range {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    background-color: var(--bg-color);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.adherence-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.adherence-card {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.adherence-card h3 {
+    margin-bottom: 16px;
+    color: var(--text-color);
+    font-size: 1.2rem;
+}
+
+.stats-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 16px;
+}
+
+.stats-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.tips-list {
+    padding-left: 20px;
+    color: var(--text-muted);
+}
+
+.tips-list li {
+    margin-bottom: 10px;
+}
+
+.daily-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.daily-table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.daily-table td {
+    padding: 10px 12px;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+}
+
+.form-group input[type="password"],
+.form-group input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .form-inputs {
+        grid-template-columns: 1fr;
+    }
+}
