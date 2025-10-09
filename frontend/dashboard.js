@@ -1,407 +1,273 @@
-const token = localStorage.getItem("token");
-
-document
-  .getElementById("add-medicine-form")
-  .addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const name = document.getElementById("medicine-name").value;
-    const dosage = document.getElementById("medicine-dosage").value;
-    const timeRaw = document.getElementById("medicine-time").value;
-    const email = document.getElementById("reminder-email").value;
-
-    // Format time to AM/PM like earlier code
-    const formattedTime = new Date(`2000-01-01T${timeRaw}`).toLocaleTimeString(
-      "en-US",
-      {
-        hour: "numeric",
-        minute: "numeric",
-        hour12: true,
-      }
-    );
-
-    const data = { token, name, dosage, time: formattedTime, email };
-
-    try {
-      const res = await fetch("http://localhost:5000/api/medicines/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.message || "Failed to add");
-      }
-
-      alert("Medicine added successfully!");
-      e.target.reset();
-      // Refresh list from server
-      await loadMedicines();
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Could not add medicine");
-    }
-  });
-
 document.addEventListener("DOMContentLoaded", () => {
-  emailjs.init("LQ3x9EcOs1j3fzcBD");
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.error("No token found. Please log in.");
+        document.getElementById('add-medicine-form').style.opacity = '0.5';
+        document.getElementById('add-medicine-form').style.pointerEvents = 'none';
+        return;
+    }
 
-  const medicinesList = document.getElementById("medicines-list");
-  const addMedicineForm = document.getElementById("add-medicine-form");
+    // --- GLOBAL STATE ---
+    let allMedicines = [];
 
-  let medicines = [];
+    // --- ELEMENT SELECTORS ---
+    const addMedicineForm = document.getElementById("add-medicine-form");
+    const medicinesList = document.getElementById("medicines-list");
+    const addTimeBtn = document.getElementById("add-time-btn");
+    const timeInputsContainer = document.getElementById("time-inputs-container");
+    const searchBar = document.getElementById("search-bar");
+    const sortBy = document.getElementById("sort-by");
+    const editModal = document.getElementById("edit-modal");
+    const editForm = document.getElementById("edit-medicine-form");
+    const cancelEditBtn = document.getElementById("cancel-edit-btn");
+    const editTimeInputsContainer = document.getElementById("edit-time-inputs-container");
+    const editAddTimeBtn = document.getElementById("edit-add-time-btn");
 
-  async function loadMedicines() {
-    try {
-      const res = await fetch("http://localhost:5000/api/medicines/list", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
+    if (!addMedicineForm || !medicinesList || !editModal || !searchBar || !sortBy) {
+        console.error("A critical page element is missing. Check your HTML IDs.");
+        return;
+    }
 
-      if (!res.ok) throw new Error("Failed to load medicines");
-      medicines = await res.json();
-      renderMedicines();
-      // refresh analytics for current selected range (if UI has values)
-      try {
-        const sdEl = document.getElementById("startDate");
-        const edEl = document.getElementById("endDate");
-        const sd = sdEl ? sdEl.value : null;
-        const ed = edEl ? edEl.value : null;
-        await loadAnalytics(sd || null, ed || null);
-      } catch (e) {
-        // ignore analytics errors here
-      }
-      // schedule reminders for loaded medicines that have an email and time
-      try {
-        medicines.forEach((m) => {
-          if (m.time && m.email) scheduleReminder(m);
+    // --- DYNAMIC TIME INPUTS LOGIC ---
+    const setupTimeInputs = (container, button) => {
+        button.addEventListener('click', () => {
+            const group = document.createElement('div');
+            group.className = 'time-input-group';
+            group.innerHTML = `<input type="time" class="medicine-time" required><button type="button" class="btn-remove-time">&times;</button>`;
+            container.appendChild(group);
+            group.querySelector('.btn-remove-time').addEventListener('click', (e) => e.target.parentElement.remove());
         });
-      } catch (e) {
-        console.warn("Could not schedule reminders for medicines", e);
-      }
-    } catch (err) {
-      console.error(err);
-      medicinesList.innerHTML =
-        '<div class="error">Could not load medicines. Make sure backend is running.</div>';
-    }
-  }
+    };
+    setupTimeInputs(timeInputsContainer, addTimeBtn);
+    setupTimeInputs(editTimeInputsContainer, editAddTimeBtn);
 
-  // Function to send email reminder
-  const sendEmailReminder = async (medicine) => {
-    try {
-      await emailjs.send(
-        // EmailJS service ID
-        "service_xfbizod",
-        // EmailJS template ID
-        "template_a5qemlc",
-        {
-          medicine_name: medicine.name,
-          dosage: medicine.dosage,
-          time: medicine.time,
-          to_email: medicine.email,
+    // --- NOTIFICATION SYSTEM ---
+    const showToast = (message, type = 'success') => {
+        const toastContainer = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.classList.add("show"), 10);
+        setTimeout(() => {
+            toast.classList.remove("show");
+            toast.addEventListener('transitionend', () => toast.remove());
+        }, 3000);
+    };
+
+    // --- HELPER & API FUNCTIONS ---
+    function escapeHtml(str) {
+        if (!str && str !== 0) return "";
+        return String(str)
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    const apiFetch = async (url, options = {}) => {
+        const { body, ...otherOptions } = options;
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, ...body }),
+            ...otherOptions
+        };
+        const res = await fetch(`http://localhost:5000/api${url}`, requestOptions);
+        if (!res.ok) {
+            try {
+                const errorData = await res.json();
+                throw new Error(errorData.message || `Request to ${url} failed`);
+            } catch (e) {
+                throw new Error(`Request to ${url} failed with status ${res.status}`);
+            }
         }
-      );
-      console.log("Email reminder sent successfully!");
-    } catch (error) {
-      console.error("Failed to send email reminder:", error);
-    }
-  };
+        return res.json();
+    };
 
-  // Function to schedule email reminder
-  const scheduleReminder = (medicine) => {
-    const [time, period] = medicine.time.split(" ");
-    const [hours, minutes] = time.split(":");
-    let hour = parseInt(hours);
-
-    // Convert to 24-hour format
-    if (period === "PM" && hour !== 12) {
-      hour += 12;
-    } else if (period === "AM" && hour === 12) {
-      hour = 0;
-    }
-
-    // Get current date
-    const now = new Date();
-    const reminderTime = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      hour,
-      parseInt(minutes)
-    );
-
-    // If the time has passed for today, schedule for tomorrow
-    if (reminderTime < now) {
-      reminderTime.setDate(reminderTime.getDate() + 1);
-    }
-
-    // Schedule the reminder
-    const timeUntilReminder = reminderTime.getTime() - now.getTime();
-    setTimeout(() => {
-      sendEmailReminder(medicine);
-      // Schedule next day's reminder
-      scheduleReminder(medicine);
-    }, timeUntilReminder);
-  };
-
-  // helper to escape HTML when rendering
-  function escapeHtml(str) {
-    if (!str && str !== 0) return "";
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  // Function to delete a medicine by id (server-side)
-  const deleteMedicine = async (id) => {
-    if (!confirm("Delete this medicine?")) return;
-    try {
-      const res = await fetch(`http://localhost:5000/api/medicines/${id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.message || "Delete failed");
-      await loadMedicines();
-      try {
-        const sdEl = document.getElementById("startDate");
-        const edEl = document.getElementById("endDate");
-        const sd = sdEl ? sdEl.value : null;
-        const ed = edEl ? edEl.value : null;
-        await loadAnalytics(sd || null, ed || null);
-      } catch (e) {}
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Delete failed");
-    }
-  };
-
-  // Mark taken/missed by id
-  const setTakenStatus = async (id, taken) => {
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/medicines/${id}/taken`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, taken }),
-        }
-      );
-
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.message || "Update failed");
-      await loadMedicines();
-      try {
-        const sdEl = document.getElementById("startDate");
-        const edEl = document.getElementById("endDate");
-        const sd = sdEl ? sdEl.value : null;
-        const ed = edEl ? edEl.value : null;
-        await loadAnalytics(sd || null, ed || null);
-      } catch (e) {}
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Update failed");
-    }
-  };
-
-  // Function to render medicines from server
-  const renderMedicines = () => {
-    medicinesList.innerHTML = "";
-    medicines.forEach((medicine) => {
-      const medicineItem = document.createElement("div");
-      medicineItem.classList.add("medicine-item");
-      // compute status and display takenAt
-      const taken = Boolean(medicine.taken);
-      const takenAt = medicine.takenAt ? new Date(medicine.takenAt) : null;
-      let statusHtml =
-        '<span class="status-pill status-pending">Pending</span>';
-      if (taken)
-        statusHtml = `<span class="status-pill status-on-time">Taken</span>`;
-      else if (medicine.taken === false)
-        statusHtml = `<span class="status-pill status-late">Missed</span>`;
-
-      // Determine number of doses for UI boxes
-      // Prefer explicit 'times' array if provided by backend; otherwise try to infer count from dosage string (e.g. "2 pills") or default to 1
-      let timesArray = [];
-      if (Array.isArray(medicine.times) && medicine.times.length > 0) {
-        timesArray = medicine.times;
-      } else {
-        // parse number from dosage like "2 pills"
-        const match = String(medicine.dosage || "").match(/(\d+)/);
-        const count = match ? Math.max(1, parseInt(match[1], 10)) : 1;
-        // if backend provided a single time string, use it for every dose; otherwise show placeholders
-        const timeLabel = medicine.time || "—";
-        for (let i = 0; i < count; i++) timesArray.push(timeLabel);
-      }
-
-      // per-day tick storage key (unique per user token, date and medicine id)
-      const getTodayKey = (medId) => {
-        const today = new Date();
-        const y = today.getFullYear();
-        const m = String(today.getMonth() + 1).padStart(2, "0");
-        const d = String(today.getDate()).padStart(2, "0");
-        const dateKey = `${y}-${m}-${d}`;
-        const tok = token || "anon";
-        return `doseTicks:${tok}:${dateKey}:${medId}`;
-      };
-
-      const loadDoseTicks = (medId, len) => {
+    // --- CORE DATA FUNCTIONS ---
+    async function loadMedicines(highlightId = null) {
         try {
-          const raw = localStorage.getItem(getTodayKey(medId));
-          if (!raw) return new Array(len).fill(false);
-          const arr = JSON.parse(raw);
-          if (!Array.isArray(arr)) return new Array(len).fill(false);
-          // normalize length
-          const out = new Array(len).fill(false);
-          for (let i = 0; i < Math.min(len, arr.length); i++)
-            out[i] = Boolean(arr[i]);
-          return out;
-        } catch (e) {
-          return new Array(len).fill(false);
+            allMedicines = await apiFetch('/medicines/list', {}) || [];
+            filterAndRenderMedicines();
+            if (highlightId) {
+                const itemToHighlight = document.querySelector(`[data-id='${highlightId}']`);
+                if (itemToHighlight) {
+                    itemToHighlight.classList.add('medicine-item--highlighted');
+                    setTimeout(() => itemToHighlight.classList.remove('medicine-item--highlighted'), 2500);
+                }
+            }
+        } catch (err) {
+            showToast(err.message, 'error');
         }
-      };
+    }
+    
+    // --- RENDER, SORT, AND FILTER LOGIC ---
+    const filterAndRenderMedicines = () => {
+        let medicinesToRender = [...allMedicines];
+        const searchTerm = searchBar.value.toLowerCase();
+        const sortValue = sortBy.value;
 
-      const saveDoseTicks = (medId, arr) => {
+        if (searchTerm) {
+            medicinesToRender = medicinesToRender.filter(med => med.name.toLowerCase().includes(searchTerm));
+        }
+
+        const getEarliestTime = (times) => {
+            if (!times || times.length === 0) return null;
+            const dateObjects = times.map(t => new Date(`1970/01/01 ${t}`));
+            return new Date(Math.min.apply(null, dateObjects));
+        };
+        
+        const getLatestTime = (times) => {
+            if (!times || times.length === 0) return null;
+            const dateObjects = times.map(t => new Date(`1970/01/01 ${t}`));
+            return new Date(Math.max.apply(null, dateObjects));
+        };
+
+        switch (sortValue) {
+            case 'name-asc':
+                medicinesToRender.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            // MODIFIED: Removed 'name-desc' case
+            case 'time-asc':
+                medicinesToRender.sort((a, b) => getEarliestTime(a.times) - getEarliestTime(b.times));
+                break;
+            case 'time-desc':
+                medicinesToRender.sort((a, b) => getLatestTime(b.times) - getLatestTime(a.times));
+                break;
+            case 'start-date-asc':
+                medicinesToRender.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+                break;
+            case 'end-date-asc':
+                medicinesToRender.sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+                break;
+            case 'recent':
+            default:
+                medicinesToRender.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                break;
+        }
+        renderMedicines(medicinesToRender);
+    };
+
+    function renderMedicines(medicines) {
+        medicinesList.innerHTML = "";
+        if (medicines.length === 0) {
+            medicinesList.innerHTML = "<p>No medicines found.</p>";
+            return;
+        }
+        medicines.forEach(med => {
+            const item = document.createElement("div");
+            item.className = "medicine-item";
+            item.dataset.id = med._id;
+            const timesDisplay = Array.isArray(med.times) ? med.times.join(', ') : '';
+            item.innerHTML = `
+                <div class="medicine-content">
+                    <h3>${escapeHtml(med.name)}</h3>
+                    <p>Dosage: ${escapeHtml(med.dosage)}</p>
+                    <p>Time(s): ${escapeHtml(timesDisplay)}</p>
+                    <p>Duration: ${escapeHtml(med.startDate)} to ${escapeHtml(med.endDate)}</p>
+                </div>
+                <div class="medicine-actions">
+                    <button class="btn-action edit"><i class="fas fa-pencil-alt"></i></button>
+                    <button class="btn-action delete"><i class="fas fa-trash"></i></button>
+                </div>`;
+            
+            item.querySelector('.edit').addEventListener('click', () => openEditModal(med));
+            item.querySelector('.delete').addEventListener('click', () => deleteMedicine(med._id, med.name));
+            medicinesList.appendChild(item);
+        });
+    }
+
+    // --- EDIT MODAL LOGIC ---
+    const openEditModal = (med) => {
+        document.getElementById('edit-medicine-id').value = med._id;
+        document.getElementById('edit-medicine-name').value = med.name;
+        document.getElementById('edit-reminder-email').value = med.email;
+        document.getElementById('edit-start-date').value = med.startDate;
+        document.getElementById('edit-end-date').value = med.endDate;
+
+        const dosageParts = med.dosage.split(' ');
+        document.getElementById('edit-dosage-amount').value = dosageParts[0];
+        document.getElementById('edit-dosage-unit').value = dosageParts.slice(1).join(' ');
+
+        editTimeInputsContainer.innerHTML = '';
+        med.times.forEach(time => {
+            const group = document.createElement('div');
+            group.className = 'time-input-group';
+            const time24hr = new Date(`1970-01-01 ${time}`).toTimeString().slice(0, 5);
+            group.innerHTML = `<input type="time" class="medicine-time" value="${time24hr}" required>`;
+            editTimeInputsContainer.appendChild(group);
+        });
+        editModal.style.display = 'flex';
+    };
+    const closeEditModal = () => { editModal.style.display = 'none'; };
+
+    // --- EVENT LISTENERS ---
+    searchBar.addEventListener('input', filterAndRenderMedicines);
+    sortBy.addEventListener('change', filterAndRenderMedicines);
+    cancelEditBtn.addEventListener('click', closeEditModal);
+    editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
+    
+    addMedicineForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = {
+            name: document.getElementById("medicine-name").value,
+            email: document.getElementById("reminder-email").value,
+            startDate: document.getElementById("start-date").value,
+            endDate: document.getElementById("end-date").value,
+            dosage: `${document.getElementById("dosage-amount").value} ${document.getElementById("dosage-unit").value}`,
+            times: Array.from(document.querySelectorAll('#time-inputs-container .medicine-time')).map(input => {
+                if (!input.value) return null;
+                return new Date(`1970-01-01T${input.value}`).toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
+            }).filter(Boolean)
+        };
+        if (formData.times.length === 0) { showToast("Please add at least one time.", "error"); return; }
         try {
-          localStorage.setItem(getTodayKey(medId), JSON.stringify(arr));
-        } catch (e) {
-          console.warn("Could not save dose ticks", e);
+            const addedMedicine = await apiFetch('/medicines/add', { body: formData });
+            showToast("Medicine added successfully!");
+            addMedicineForm.reset();
+            while (timeInputsContainer.children.length > 1) { timeInputsContainer.removeChild(timeInputsContainer.lastChild); }
+            loadMedicines(addedMedicine._id);
+        } catch (err) {
+            showToast(err.message, 'error');
         }
-      };
-
-      const doseTicks = loadDoseTicks(medicine._id, timesArray.length);
-
-      // build boxes HTML
-      const boxesHtml = timesArray
-        .map((t, idx) => {
-          const checked = doseTicks[idx] ? "checked" : "";
-          const label = t || `Dose ${idx + 1}`;
-          return `<label class="dose-box" data-med="${
-            medicine._id
-          }" data-idx="${idx}"><input type="checkbox" class="dose-checkbox" ${checked}><span class="dose-label">${escapeHtml(
-            label
-          )}</span></label>`;
-        })
-        .join("");
-
-      medicineItem.innerHTML = `
-        <div class="medicine-content">
-          <h3>${escapeHtml(medicine.name)} ${statusHtml}</h3>
-          <p>Dosage: ${escapeHtml(medicine.dosage)}</p>
-          <p class="time-line">Time: ${escapeHtml(
-            medicine.time || timesArray[0] || "—"
-          )}</p>
-          ${
-            takenAt
-              ? `<p class="taken-at">Taken at: ${takenAt.toLocaleString()}</p>`
-              : ""
-          }
-          <div class="dose-boxes">${boxesHtml}</div>
-        </div>
-        <div class="medicine-actions">
-          <button class="btn" data-id="${medicine._id}" data-action="taken">${
-        taken ? "Taken" : "Mark Taken"
-      }</button>
-          <button class="btn" data-id="${medicine._id}" data-action="missed">${
-        !taken ? "Missed" : "Mark Missed"
-      }</button>
-          <button class="btn btn-delete" data-id="${
-            medicine._id
-          }" data-action="delete"><i class="fas fa-trash"></i></button>
-        </div>
-      `;
-
-      // attach listeners for dose boxes
-      // (use event delegation after element is in DOM)
-      medicinesList.appendChild(medicineItem);
-
-      medicineItem.querySelectorAll(".dose-box").forEach((lbl) => {
-        const chk = lbl.querySelector(".dose-checkbox");
-        const medId = lbl.getAttribute("data-med");
-        const idx = Number(lbl.getAttribute("data-idx"));
-        chk.addEventListener("change", (ev) => {
-          const arr = loadDoseTicks(medId, timesArray.length);
-          arr[idx] = !!chk.checked;
-          saveDoseTicks(medId, arr);
-          // optionally, mark the whole medicine as taken if all boxes checked
-          if (arr.every(Boolean)) {
-            // mark medicine overall taken on server
-            setTakenStatus(medId, true).catch(() => {});
-          }
-        });
-      });
-
-      // attach action listeners (delete/taken/missed)
-      medicineItem.querySelectorAll("[data-action]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const id = btn.getAttribute("data-id");
-          const action = btn.getAttribute("data-action");
-          if (action === "delete") return deleteMedicine(id);
-          if (action === "taken") return setTakenStatus(id, true);
-          if (action === "missed") return setTakenStatus(id, false);
-        });
-      });
     });
-  };
-
-  // ---- Analytics functions for dashboard ----
-  async function loadAnalytics(startDate, endDate) {
-    try {
-      const res = await fetch("http://localhost:5000/api/analytics/data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, startDate, endDate }),
-      });
-      if (!res.ok) throw new Error("Failed to load analytics");
-      const json = await res.json();
-      renderDailySummary(json.daily || []);
-    } catch (err) {
-      console.error(err);
-      const container = document.getElementById("daily-summary");
-      if (container)
-        container.innerHTML =
-          '<div class="error">Could not load analytics</div>';
-    }
-  }
-
-  function renderDailySummary(daily) {
-    const container = document.getElementById("daily-summary");
-    if (!container) return;
-    if (!daily || daily.length === 0) {
-      container.innerHTML =
-        '<div class="empty">No daily data for selected range</div>';
-      return;
+    
+    editForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-medicine-id').value;
+        const updatedData = {
+            name: document.getElementById("edit-medicine-name").value,
+            email: document.getElementById("edit-reminder-email").value,
+            startDate: document.getElementById("edit-start-date").value,
+            endDate: document.getElementById("edit-end-date").value,
+            dosage: `${document.getElementById("edit-dosage-amount").value} ${document.getElementById("edit-dosage-unit").value}`,
+            times: Array.from(document.querySelectorAll('#edit-time-inputs-container .medicine-time')).map(input => {
+                if (!input.value) return null;
+                return new Date(`1970-01-01T${input.value}`).toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
+            }).filter(Boolean)
+        };
+        if (updatedData.times.length === 0) { showToast("Please add at least one time.", "error"); return; }
+        try {
+            await apiFetch(`/medicines/${id}`, { method: 'PUT', body: updatedData });
+            showToast("Medicine updated successfully!");
+            closeEditModal();
+            loadMedicines();
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    });
+    
+    async function deleteMedicine(id, name) {
+        if (confirm(`Are you sure you want to delete ${name}?`)) {
+            try {
+                await apiFetch(`/medicines/${id}`, { method: 'DELETE' });
+                showToast("Medicine deleted.");
+                loadMedicines();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
     }
 
-    container.innerHTML = `<table class="daily-table"><thead><tr><th>Date</th><th>Total</th><th>Taken</th><th>Missed</th></tr></thead><tbody>${daily
-      .map(
-        (d) =>
-          `<tr><td>${d.date}</td><td>${d.total}</td><td>${d.taken}</td><td>${d.missed}</td></tr>`
-      )
-      .join("")}</tbody></table>`;
-  }
-
-  // Wire showDaily button if present
-  const showBtn = document.getElementById("showDaily");
-  if (showBtn)
-    showBtn.addEventListener("click", () => {
-      const startDate = document.getElementById("startDate").value || null;
-      const endDate = document.getElementById("endDate").value || null;
-      loadAnalytics(startDate, endDate);
-    });
-
-  // Handle form submission (legacy scheduling handled separately after saving)
-  addMedicineForm.addEventListener("submit", (e) => {
-    // handled above by fetch to /add
-  });
-
-  // Initial load from server
-  loadMedicines();
+    // --- INITIAL LOAD ---
+    loadMedicines();
 });
