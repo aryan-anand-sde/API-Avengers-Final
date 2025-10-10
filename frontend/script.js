@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Welcome back, Alchemist!");
     }
     window.history.replaceState({}, document.title, window.location.pathname);
-    window.location.href = "/dashboard.html";
+    window.location.href = "dashboard.html";
   }
 
   // Handle direct tab selection from URL
@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         alert("Welcome back, Alchemist!");
         localStorage.setItem("token", data.token);
-        window.location.href = "/dashboard.html";
+        window.location.href = "dashboard.html";
       } catch (err) {
         alert(`Error: ${err.message}`);
       } finally {

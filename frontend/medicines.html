@@ -5,37 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Medications - Medicines Dashboard</title>
     <link rel="icon" href="/assets/title image.png" type="image/png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
     <link rel="stylesheet" href="pages.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
 </head>
+
 <body>
     <div class="dashboard-layout">
         <aside class="sidebar">
             <div class="sidebar-top">
-                <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
+                <h2 class="sidebar-logo">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </h2>
                 <ul class="sidebar-menu">
-                    <li><a href="dashboard.html" title="Dashboard"><i class="fa-solid fa-table-columns"></i></a></li>
-                    <li class="active"><a href="medicines.html" title="My Medications"><i class="fa-solid fa-pills"></i></a></li>
-                    <li><a href="analytics.html" title="Analytics"><i class="fa-solid fa-chart-line"></i></a></li>
+                    <li>
+                        <a href="dashboard.html" title="Dashboard">
+                            <i class="fa-solid fa-table-columns"></i>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="medicines.html" title="My Medications">
+                            <i class="fa-solid fa-pills"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="analytics.html" title="Analytics">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </a>
+                    </li>
                 </ul>
             </div>
+
             <div class="sidebar-bottom">
                 <ul class="sidebar-menu">
-                    <li><a href="settings.html" title="Settings"><i class="fa-solid fa-gear"></i></a></li>
-                    <li><a href="profile.html" title="Profile"><i class="fa-solid fa-user"></i></a></li>
+                    <li>
+                        <a href="settings.html" title="Settings">
+                            <i class="fa-solid fa-gear"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="profile.html" title="Profile">
+                            <i class="fa-solid fa-user"></i>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </aside>
 
         <main class="dashboard-main">
             <div class="dashboard-container">
-                <h2 class="dashboard-title"><i class="fa-solid fa-pills"></i> My Medications</h2>
+                <header class="page-header">
+                    <h2 class="dashboard-title">
+                        <i class="fa-solid fa-pills"></i> My Medications
+                    </h2>
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input id="search" type="search" placeholder="Search medications..." />
+                    </div>
+                </header>
+
                 <hr />
-                <p>This page will show a complete history of all your medications.</p>
+
+                <div class="date-controls">
+                    <button id="prev-day" class="btn btn-secondary date-nav-btn">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <input type="date" id="schedule-date" />
+                    <button id="next-day" class="btn btn-secondary date-nav-btn">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                    <button id="today-btn" class="btn btn-secondary">Today</button>
+                </div>
+
+                <section class="med-list-section">
+                    <div id="medicines-list" class="medicines-list" aria-live="polite"></div>
+
+                    <div id="empty" class="empty" hidden>
+                        <h3>No Medications Found</h3>
+                        <p>Your medication history is empty.</p>
+                    </div>
+                </section>
             </div>
         </main>
     </div>
+
     <script src="medicines.js"></script>
 </body>
 </html>
-
