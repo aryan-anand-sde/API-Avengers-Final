@@ -63,25 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-    /**
-     * Reformats a date string from YYYY-MM-DD to DD-MM-YYYY.
-     * @param {string} dateString The date string from the API (e.g., "2025-10-11" or "2025-10-11T...").
-     * @returns {string} The formatted date string (e.g., "11-10-2025").
-     */
-    function formatApiDate(dateString) {
-        if (!dateString) return 'N/A';
-        
-        // Take only the date part (YYYY-MM-DD)
-        const datePart = dateString.split('T')[0];
-        const parts = datePart.split('-');
-        
-        if (parts.length === 3) {
-            // Reorder to dd-mm-yyyy
-            return `${parts[2]}-${parts[1]}-${parts[0]}`; 
-        }
-        return dateString; // Return original if format is unexpected
-    }
-
     const apiFetch = async (url, options = {}) => {
         const { body, ...otherOptions } = options;
         const requestOptions = {
@@ -118,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast(err.message, 'error');
         }
     }
-    
+
     // --- RENDER, SORT, AND FILTER LOGIC ---
     const filterAndRenderMedicines = () => {
         let medicinesToRender = [...allMedicines];
@@ -134,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const dateObjects = times.map(t => new Date(`1970/01/01 ${t}`));
             return new Date(Math.min.apply(null, dateObjects));
         };
-        
+
         const getLatestTime = (times) => {
             if (!times || times.length === 0) return null;
             const dateObjects = times.map(t => new Date(`1970/01/01 ${t}`));
@@ -175,25 +156,18 @@ document.addEventListener("DOMContentLoaded", () => {
             const item = document.createElement("div");
             item.className = "medicine-item";
             item.dataset.id = med._id;
-            const timesDisplay = Array.isArray(med.times) ? med.times.join(', ') : 'N/A';
-            
-            // --- MODIFIED: Date Formatting Applied Here ---
-            const displayStartDate = formatApiDate(med.startDate);
-            const displayEndDate = formatApiDate(med.endDate);
-            // ---------------------------------------------
-            
+            const timesDisplay = Array.isArray(med.times) ? med.times.join(', ') : '';
             item.innerHTML = `
                 <div class="medicine-content">
                     <h3>${escapeHtml(med.name)}</h3>
                     <p>Dosage: ${escapeHtml(med.dosage)}</p>
                     <p>Time(s): ${escapeHtml(timesDisplay)}</p>
-                    <p>Duration: ${displayStartDate} to ${displayEndDate}</p>
+                    <p>Duration: ${escapeHtml(med.startDate)} to ${escapeHtml(med.endDate)}</p>
                 </div>
                 <div class="medicine-actions">
                     <button class="btn-action edit"><i class="fas fa-pencil-alt"></i></button>
                     <button class="btn-action delete"><i class="fas fa-trash"></i></button>
                 </div>`;
-            
             item.querySelector('.edit').addEventListener('click', () => openEditModal(med));
             item.querySelector('.delete').addEventListener('click', () => deleteMedicine(med._id, med.name));
             medicinesList.appendChild(item);
@@ -205,7 +179,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('edit-medicine-id').value = med._id;
         document.getElementById('edit-medicine-name').value = med.name;
         document.getElementById('edit-reminder-email').value = med.email;
-        // NOTE: The values below should be in YYYY-MM-DDTHH:MM format for the datetime-local inputs
         document.getElementById('edit-start-date').value = med.startDate;
         document.getElementById('edit-end-date').value = med.endDate;
 
@@ -217,10 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
         med.times.forEach(time => {
             const group = document.createElement('div');
             group.className = 'time-input-group';
-            // Convert AM/PM time back to 24hr format for the input[type="time"]
-            // This logic is complex, but this is a common approximation for time parsing:
-            const time24hr = new Date(`1970-01-01 ${time}`).toTimeString().slice(0, 5); 
-            group.innerHTML = `<input type="time" class="medicine-time" value="${time24hr}" required>`;
+            group.innerHTML = `<input type="time" class="medicine-time" value="${time}" required>`;
             editTimeInputsContainer.appendChild(group);
         });
         editModal.style.display = 'flex';
@@ -232,7 +202,8 @@ document.addEventListener("DOMContentLoaded", () => {
     sortBy.addEventListener('change', filterAndRenderMedicines);
     cancelEditBtn.addEventListener('click', closeEditModal);
     editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
-    
+
+    // --- ADD MEDICINE ---
     addMedicineForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = {
@@ -241,25 +212,25 @@ document.addEventListener("DOMContentLoaded", () => {
             startDate: document.getElementById("start-date").value,
             endDate: document.getElementById("end-date").value,
             dosage: `${document.getElementById("dosage-amount").value} ${document.getElementById("dosage-unit").value}`,
-            times: Array.from(document.querySelectorAll('#time-inputs-container .medicine-time')).map(input => {
-                if (!input.value) return null;
-                // Converts 24hr input (HH:MM) to AM/PM string for storage
-                return new Date(`1970-01-01T${input.value}`).toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
-            }).filter(Boolean)
+            times: Array.from(document.querySelectorAll('#time-inputs-container .medicine-time'))
+                .map(input => input.value)
+                .filter(Boolean)
         };
         if (formData.times.length === 0) { showToast("Please add at least one time.", "error"); return; }
         try {
             const addedMedicine = await apiFetch('/medicines/add', { body: formData });
             showToast("Medicine added successfully!");
             addMedicineForm.reset();
-            // Remove all but the first time input field
-            while (timeInputsContainer.children.length > 1) { timeInputsContainer.removeChild(timeInputsContainer.lastChild); }
+            while (timeInputsContainer.children.length > 1) {
+                timeInputsContainer.removeChild(timeInputsContainer.lastChild);
+            }
             loadMedicines(addedMedicine._id);
         } catch (err) {
             showToast(err.message, 'error');
         }
     });
-    
+
+    // --- EDIT MEDICINE ---
     editForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const id = document.getElementById('edit-medicine-id').value;
@@ -269,11 +240,9 @@ document.addEventListener("DOMContentLoaded", () => {
             startDate: document.getElementById("edit-start-date").value,
             endDate: document.getElementById("edit-end-date").value,
             dosage: `${document.getElementById("edit-dosage-amount").value} ${document.getElementById("edit-dosage-unit").value}`,
-            times: Array.from(document.querySelectorAll('#edit-time-inputs-container .medicine-time')).map(input => {
-                if (!input.value) return null;
-                // Converts 24hr input (HH:MM) to AM/PM string for storage
-                return new Date(`1970-01-01T${input.value}`).toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
-            }).filter(Boolean)
+            times: Array.from(document.querySelectorAll('#edit-time-inputs-container .medicine-time'))
+                .map(input => input.value)
+                .filter(Boolean)
         };
         if (updatedData.times.length === 0) { showToast("Please add at least one time.", "error"); return; }
         try {
@@ -285,7 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast(err.message, 'error');
         }
     });
-    
+
     async function deleteMedicine(id, name) {
         if (confirm(`Are you sure you want to delete ${name}?`)) {
             try {
