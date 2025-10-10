@@ -2,7 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import Medicine from "../models/medicineModel.js";
 import Adherence from "../models/Adherence.js";
-import auth from "../middleware/auth.js"; 
+import auth from "../middleware/auth.js";
+import reminder from "../models/reminderModel.js"; 
 
 const router = express.Router();
 
@@ -13,23 +14,38 @@ const router = express.Router();
 // @access  Private
 router.post("/add", auth, async (req, res) => {
     try {
-        const { name, dosage, times, email, startDate, endDate } = req.body;
+        const { name, dosage, phone, times, email, startDate, endDate } = req.body;
 
         if (!name || !dosage || !times || !startDate || !endDate) {
             return res.status(400).json({ message: "Please provide all required fields" });
         }
-        
+        console.log(phone);
         const medicine = new Medicine({
             userId: req.user.id,
             name,
             dosage,
             times,
             email,
+            // phone,
             startDate,
             endDate,
         });
 
+
         const newMedicine = await medicine.save();
+
+        const Reminder = new reminder({
+            name,
+            dosage,
+            contactType: phone ? "whatsapp" : "email",
+            email,
+            phone,
+            times,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate)
+        });
+        await Reminder.save();
+        
         res.status(201).json(newMedicine);
 
     } catch (error) {

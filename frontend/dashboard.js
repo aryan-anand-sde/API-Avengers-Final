@@ -209,6 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const formData = {
             name: document.getElementById("medicine-name").value,
             email: document.getElementById("reminder-email").value,
+            phone: document.getElementById("reminder-phone").value,
             startDate: document.getElementById("start-date").value,
             endDate: document.getElementById("end-date").value,
             dosage: `${document.getElementById("dosage-amount").value} ${document.getElementById("dosage-unit").value}`,

@@ -23,6 +23,12 @@ const medicineSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    // MODIFIED: Set to required: true to ensure the phone number is always available for reminders.
+    // phone: {
+    //     type: String,
+    //     required: true, 
+    //     default: null, // Default is technically redundant if required is true, but kept for clarity/consistency
+    // },
     startDate: {
         type: String,
         required: true
