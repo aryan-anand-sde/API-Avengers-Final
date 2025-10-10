@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="pages.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+
 <body>
     <div class="dashboard-layout">
         <!-- Sidebar -->
@@ -15,7 +17,8 @@
             <div class="sidebar-top">
                 <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
                 <ul class="sidebar-menu">
-                    <li class="active"><a href="dashboard.html" title="Dashboard"><i class="fa-solid fa-table-columns"></i></a></li>
+                    <li class="active"><a href="dashboard.html" title="Dashboard"><i
+                                class="fa-solid fa-table-columns"></i></a></li>
                     <li><a href="medicines.html" title="Medicines"><i class="fa-solid fa-pills"></i></a></li>
                     <li><a href="analytics.html" title="Analytics"><i class="fa-solid fa-chart-line"></i></a></li>
                 </ul>
@@ -33,7 +36,7 @@
             <div class="dashboard-container">
                 <h2 class="dashboard-title"><i class="fa-solid fa-capsules"></i> Medicines Dashboard</h2>
                 <hr>
-                
+
                 <form id="add-medicine-form" class="add-medicine-form">
                     <div class="form-inputs">
                         <input type="text" id="medicine-name" placeholder="Medicine Name" required>
@@ -52,8 +55,8 @@
                                 <input type="time" class="medicine-time" required>
                             </div>
                         </div>
-                        <input type="datetime-local" id="start-date" required>
-                        <input type="datetime-local" id="end-date" required>
+                        <input type="date" id="start-date" required>
+                        <input type="date" id="end-date" required>
                     </div>
                     <button type="button" id="add-time-btn" class="btn btn-secondary">Add another time</button>
                     <div class="form-actions">
@@ -113,4 +116,5 @@
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="dashboard.js"></script>
 </body>
+
 </html>
