@@ -108,6 +108,30 @@ This project was magically conjured by the **API Avengers** (Team ID: 734).
 
 # Screenshots
 
+> Home Page :
+> ![](/assets/Home%201.png)
+
+> Home Page :
+> ![](/assets/Home%202.png)
+
+> Sign Up Page :
+> ![](/assets/SignUp.png)
+
+> Sign In Page :
+> ![](/assets/SignIn.png)
+
+> Login Successful Page :
+> ![](/assets/Login%20Succesful.png)
+
+> Dashboard Page :
+> ![](/assets/Dashboard%20add.png)
+
+> Dashboard Page :
+> ![](/assets/Dashboard%20show.png)
+
+> Medications Page :
+> ![](/assets/Medications.png)
+
 # Event Tag :
 
 > > > ![CodeSangam 2025](/assets/title%20image.png)
