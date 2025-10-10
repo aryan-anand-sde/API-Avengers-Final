@@ -3,7 +3,7 @@
 ## [API Avengers (Team: 734)](#our-team)
 
 A magical web application for medicine scheduling and wellness tracking, designed to ensure performers never miss a vital dose of their elixirs.  
-This project was created for **[WEBSTER 2025](#event-tag)**.
+This project was created for **[WEBSTER 2025](https://computercodingclub.in/codesangam)**.
 
 ## 📖 Table of Contents
 
