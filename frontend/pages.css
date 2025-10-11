@@ -73,50 +73,48 @@ hr {
 /* --- General Button Styles --- */
 /* Ensure this is in your .btn class for proper icon alignment */
 .btn {
-    padding: 10px 22px;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-    font-size: 0.95rem;
-    color: white;
-    /* Add these properties to align text and icons */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: white;
+  /* Add these properties to align text and icons */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
-
 
 /* --- Profile Page --- */
 /* Flex container for the header to align title and button */
 .profile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
 /* Remove extra margin from the title when it's in the header */
 .profile-header .dashboard-title {
-    margin-bottom: 0; 
+  margin-bottom: 0;
 }
 
 /* Style for the professional red logout button */
 .btn-logout {
-    background-color: transparent;
-    border: 1px solid var(--delete-red);
-    color: var(--delete-red);
-    padding: 8px 16px; /* Makes the button smaller */
-    font-weight: 600;
+  background-color: transparent;
+  border: 1px solid var(--delete-red);
+  color: var(--delete-red);
+  padding: 8px 16px; /* Makes the button smaller */
+  font-weight: 600;
 }
 
 .btn-logout:hover {
-    background-color: var(--delete-red);
-    color: white;
+  background-color: var(--delete-red);
+  color: white;
 }
-
 
 /* --- Layout --- */
 .dashboard-layout {
@@ -214,9 +212,8 @@ hr {
 
 /* MODIFIED: Adjust margin-bottom for dashboard-title when inside profile-header */
 .profile-header .dashboard-title {
-    margin-bottom: 0; 
+  margin-bottom: 0;
 }
-
 
 .dashboard-title i {
   color: var(--gradient-start);
@@ -644,10 +641,10 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 /* --- Profile Page --- */
 /* MODIFIED: New profile-header to align title and logout button */
 .profile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px; /* Space before the HR tag */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px; /* Space before the HR tag */
 }
 
 .profile-info-card {
@@ -693,7 +690,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     background-color: var(--delete-red-darker);
 }
 */
-
 
 /* --- Adherence Page --- */
 .adherence-header {
@@ -755,14 +751,14 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 .stats-card hr {
-    margin: 16px 0;
+  margin: 16px 0;
 }
 
 .stats-card h4 {
-    margin-bottom: 8px;
-    color: var(--primary-color);
-    font-size: 1rem;
-    font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--primary-color);
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .stats-list {
@@ -772,10 +768,10 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 .stats-list li {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px dashed var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border-color);
 }
 
 #stat-percent {
@@ -794,8 +790,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 .recent-list {
-    max-height: 250px;
-    overflow-y: auto;
+  max-height: 250px;
+  overflow-y: auto;
 }
 
 #change-password {
@@ -809,29 +805,29 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   color: var(--text-muted);
 }
 .daily-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
 }
 
 .daily-table thead th {
-    text-align: left;
-    padding: 8px 0;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    border-bottom: 1px solid var(--border-color);
-    white-space: nowrap;
+  text-align: left;
+  padding: 8px 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .daily-table tbody td {
-    padding: 6px 0;
-    border-bottom: 1px dashed var(--border-color);
-    color: var(--text-color);
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border-color);
+  color: var(--text-color);
 }
 
 .daily-table tbody tr:last-child td {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .daily-table th:nth-child(2),
@@ -840,8 +836,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .daily-table td:nth-child(3),
 .daily-table th:nth-child(4),
 .daily-table td:nth-child(4) {
-    text-align: right;
-    padding-right: 4px;
+  text-align: right;
+  padding-right: 4px;
 }
 
 /* --- Utilities --- */
@@ -899,18 +895,18 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(148, 142, 174, 0.4);
-    border-radius: 5px;
-    border: 2px solid transparent;
-    background-clip: content-box;
+  background-color: rgba(148, 142, 174, 0.4);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(168, 85, 247, 0.8);
+  background-color: rgba(168, 85, 247, 0.8);
 }
 
 /* --- HIDE ARROWS FROM NUMBER INPUTS --- */
