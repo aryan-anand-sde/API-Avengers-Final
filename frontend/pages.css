@@ -70,6 +70,54 @@ hr {
     color: var(--primary-color);
 }
 
+/* --- General Button Styles --- */
+/* Ensure this is in your .btn class for proper icon alignment */
+.btn {
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: white;
+    /* Add these properties to align text and icons */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+
+/* --- Profile Page --- */
+/* Flex container for the header to align title and button */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+/* Remove extra margin from the title when it's in the header */
+.profile-header .dashboard-title {
+    margin-bottom: 0; 
+}
+
+/* Style for the professional red logout button */
+.btn-logout {
+    background-color: transparent;
+    border: 1px solid var(--delete-red);
+    color: var(--delete-red);
+    padding: 8px 16px; /* Makes the button smaller */
+    font-weight: 600;
+}
+
+.btn-logout:hover {
+    background-color: var(--delete-red);
+    color: white;
+}
+
+
 /* --- Layout --- */
 .dashboard-layout {
     display: flex;
@@ -151,7 +199,7 @@ hr {
 
 .dashboard-title {
     font-size: 2rem;
-    margin-bottom: 16px;
+    margin-bottom: 16px; /* Keep for individual titles */
     background: linear-gradient(90deg,
             var(--gradient-start),
             var(--pink),
@@ -161,6 +209,12 @@ hr {
     color: transparent;
     display: inline-block;
 }
+
+/* MODIFIED: Adjust margin-bottom for dashboard-title when inside profile-header */
+.profile-header .dashboard-title {
+    margin-bottom: 0; 
+}
+
 
 .dashboard-title i {
     color: var(--gradient-start);
@@ -477,11 +531,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    /* Center content horizontally */
     gap: 8px;
     white-space: nowrap;
     min-width: 110px;
-    /* Increased minimum width for uniform size */
 }
 
 .status-indicator i {
@@ -498,10 +550,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     color: white;
 }
 
-/* --- END ACTION BUTTON AND STATUS STYLES --- */
-
-
-/* --- Other Button Styles (Kept for consistency, though less relevant now) --- */
+/* --- Other Button Styles --- */
 .btn-action {
     background: transparent;
     color: var(--text-muted);
@@ -527,9 +576,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     background-color: var(--delete-red);
     color: white;
 }
-
-/* --- End of other button styles --- */
-
 
 /* --- Toast Notifications --- */
 #toast-container {
@@ -593,6 +639,14 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 /* --- Profile Page --- */
+/* MODIFIED: New profile-header to align title and logout button */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px; /* Space before the HR tag */
+}
+
 .profile-info-card {
     display: flex;
     flex-direction: column;
@@ -619,6 +673,25 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     color: var(--text-color);
 }
 
+/* REMOVED: Old .profile-actions and .btn-danger styles as they are no longer used for logout */
+/*
+.profile-actions {
+    margin-top: 24px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 24px;
+}
+
+.btn-danger {
+    background-color: var(--delete-red);
+    width: 100%;
+}
+
+.btn-danger:hover {
+    background-color: var(--delete-red-darker);
+}
+*/
+
+
 /* --- Adherence Page --- */
 .adherence-header {
     margin-bottom: 24px;
@@ -641,7 +714,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     border: 1px solid var(--border-color);
 }
 
-/* Styling for Date Range Inputs */
 .date-range label {
     display: flex;
     align-items: center;
@@ -681,14 +753,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 
 .stats-card hr {
     margin: 16px 0;
-    /* Adjusted separator */
 }
 
 .stats-card h4 {
     margin-bottom: 8px;
-    /* Tighter spacing for the History title */
     color: var(--primary-color);
-    /* Highlight History title */
     font-size: 1rem;
     font-weight: 600;
 }
@@ -703,11 +772,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     display: flex;
     justify-content: space-between;
     padding: 8px 0;
-    /* Use transparent border for a cleaner look */
     border-bottom: 1px dashed var(--border-color);
 }
 
-/* Highlight Adherence Percentage in Summary */
 #stat-percent {
     font-size: 1.2rem;
     color: var(--primary-color);
@@ -724,9 +791,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 .recent-list {
-    /* Style the container for history to control scroll if needed */
     max-height: 250px;
-    /* Example max-height */
     overflow-y: auto;
 }
 
@@ -734,14 +799,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
-    /* Slightly smaller font for table data */
 }
 
-/* Table Header Style to match the screenshot better */
 .daily-table thead th {
     text-align: left;
     padding: 8px 0;
-    /* Tighter padding */
     font-size: 0.85rem;
     font-weight: 500;
     color: var(--text-muted);
@@ -749,20 +811,16 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     white-space: nowrap;
 }
 
-/* Table Body Style */
 .daily-table tbody td {
     padding: 6px 0;
-    /* Tighter padding for rows */
     border-bottom: 1px dashed var(--border-color);
     color: var(--text-color);
 }
 
 .daily-table tbody tr:last-child td {
     border-bottom: none;
-    /* No border on the last row */
 }
 
-/* Center-align data columns (optional but common for numerical stats) */
 .daily-table th:nth-child(2),
 .daily-table td:nth-child(2),
 .daily-table th:nth-child(3),
@@ -771,7 +829,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .daily-table td:nth-child(4) {
     text-align: right;
     padding-right: 4px;
-    /* Optional slight right padding */
 }
 
 
@@ -831,32 +888,26 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 
 ::-webkit-scrollbar-track {
     background: transparent;
-    /* Makes the track invisible */
 }
 
 ::-webkit-scrollbar-thumb {
     background-color: rgba(148, 142, 174, 0.4);
-    /* A semi-transparent muted color */
     border-radius: 5px;
     border: 2px solid transparent;
     background-clip: content-box;
-    /* Ensures the border acts as padding */
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background-color: rgba(168, 85, 247, 0.8);
-    /* Becomes more visible on hover */
 }
 
-/* --- NEW: HIDE ARROWS FROM NUMBER INPUTS --- */
-/* For Chrome, Safari, Edge, Opera */
+/* --- HIDE ARROWS FROM NUMBER INPUTS --- */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-/* For Firefox */
 input[type="number"] {
     -moz-appearance: textfield;
 }

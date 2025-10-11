@@ -1,80 +1,97 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener('DOMContentLoaded', () => {
+    // --- ELEMENT SELECTORS ---
+    const userNameEl = document.getElementById('user-name');
+    const userEmailEl = document.getElementById('user-email');
+    const userIdEl = document.getElementById('user-id');
+    const logoutBtn = document.getElementById('logout-btn');
     const API_ENDPOINT = "http://localhost:5000/api/auth/me";
-    const container = document.getElementById("profile-info");
-    const token = localStorage.getItem("token");
 
-    if (!container) {
-        console.error("❌ Element with ID 'profile-info' not found in HTML.");
-        return;
-    }
-
+    // --- AUTHENTICATION CHECK ---
+    const token = localStorage.getItem('token');
     if (!token) {
-        console.warn("⚠️ No login token found in localStorage.");
-        container.innerHTML = `
-            <p class="error-message">
-                You are not logged in. Please <a href="auth.html">sign in</a>.
-            </p>`;
+        // MODIFIED: Redirect to index.html
+        window.location.href = 'index.html';
         return;
     }
 
-    async function loadProfile() {
-        try {
-            console.log("🔍 Fetching user profile from:", API_ENDPOINT);
+    // --- NOTIFICATION SYSTEM ---
+    const showToast = (message, type = 'success') => {
+        const toastContainer = document.getElementById("toast-container");
+        if (!toastContainer) {
+            console.error("Toast container not found!");
+            return;
+        }
 
-            const res = await fetch(API_ENDPOINT, {
-                method: "GET",
+        const toast = document.createElement("div");
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.classList.add("show"), 10);
+        setTimeout(() => {
+            toast.classList.remove("show");
+            toast.addEventListener('transitionend', () => toast.remove());
+        }, 3000);
+    };
+
+    // --- LOAD USER PROFILE DATA ---
+    async function loadProfile() {
+        if (!userNameEl || !userEmailEl || !userIdEl) {
+            console.error("One or more profile elements are missing from the HTML.");
+            return;
+        }
+
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'GET',
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`, // ✅ Correct header
-                },
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
-            console.log("📡 Response status:", res.status);
-
-            if (res.status === 401) {
-                // Token expired or invalid
-                console.warn("⚠️ Unauthorized - removing token");
-                localStorage.removeItem("token");
-                container.innerHTML = `
-                    <p class="error-message">
-                        Session expired. Please <a href="auth.html">log in again</a>.
-                    </p>`;
+            if (response.status === 401 || response.status === 403) {
+                console.warn("Unauthorized or Forbidden access. Logging out.");
+                handleLogout();
                 return;
             }
 
-            if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.message || `Request failed (${res.status})`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch user data from the server.');
             }
 
-            const user = await res.json();
-            console.log("✅ User fetched successfully:", user);
+            const user = await response.json();
 
-            if (!user || !user.email) {
-                throw new Error("Invalid user data received from server.");
-            }
+            userNameEl.textContent = user.name || 'N/A';
+            userEmailEl.textContent = user.email || 'N/A';
+            userIdEl.textContent = user._id || 'N/A';
 
-            // ✅ Display user info
-            container.innerHTML = `
-                <div class="profile-item">
-                    <span class="profile-label">Name</span>
-                    <span class="profile-value">${user.name || "N/A"}</span>
-                </div>
-                <div class="profile-item">
-                    <span class="profile-label">Email</span>
-                    <span class="profile-value">${user.email}</span>
-                </div>
-                <div class="profile-item">
-                    <span class="profile-label">User ID</span>
-                    <span class="profile-value">${user._id || "N/A"}</span>
-                </div>
-            `;
-        } catch (err) {
-            console.error("❌ Fetch failed:", err);
-            container.innerHTML = `
-                <p class="error-message">Error loading profile: ${err.message}</p>`;
+        } catch (error) {
+            console.error('Error loading profile:', error);
+            userNameEl.textContent = 'Error loading data';
+            userEmailEl.textContent = 'Please try again later.';
+            userIdEl.textContent = '-';
+            showToast(error.message, 'error');
         }
     }
 
-    await loadProfile();
+    // --- LOGOUT FUNCTIONALITY ---
+    function handleLogout() {
+        localStorage.removeItem('token');
+        showToast('You have been logged out.');
+
+        setTimeout(() => {
+            // MODIFIED: Redirect to index.html
+            window.location.href = 'index.html';
+        }, 1500);
+    }
+
+    // --- EVENT LISTENERS ---
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    } else {
+        console.error("Logout button not found in the HTML.");
+    }
+
+    // --- INITIAL LOAD ---
+    loadProfile();
 });
