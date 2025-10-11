@@ -12,7 +12,6 @@
 
 <body>
     <div class="dashboard-layout">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-top">
                 <h2 class="sidebar-logo"><i class="fa-solid fa-wand-magic-sparkles"></i></h2>
@@ -31,7 +30,6 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="dashboard-main">
             <div class="dashboard-container">
                 <h2 class="dashboard-title"><i class="fa-solid fa-capsules"></i> Medicines Dashboard</h2>
@@ -50,7 +48,7 @@
                             </select>
                         </div>
                         <input type="email" id="reminder-email" placeholder="Email for reminders" required>
-                        <input type="number" id="reminder-phone" placeholder="Phone for reminders" required>
+                        <input type="tel" id="reminder-phone" placeholder="Phone for reminders" required>
                         <div id="time-inputs-container" class="time-inputs-container">
                             <div class="time-input-group">
                                 <input type="time" class="medicine-time" required>
@@ -101,6 +99,7 @@
                         </select>
                     </div>
                     <input type="email" id="edit-reminder-email" placeholder="Email for reminders" required>
+                    <input type="tel" id="edit-reminder-phone" placeholder="Phone for reminders" required>
                     <div id="edit-time-inputs-container" class="time-inputs-container"></div>
                     <input type="date" id="edit-start-date" required>
                     <input type="date" id="edit-end-date" required>

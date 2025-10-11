@@ -153,9 +153,9 @@ hr {
     font-size: 2rem;
     margin-bottom: 16px;
     background: linear-gradient(90deg,
-                var(--gradient-start),
-                var(--pink),
-                var(--gradient-end));
+            var(--gradient-start),
+            var(--pink),
+            var(--gradient-end));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -680,12 +680,15 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 .stats-card hr {
-    margin: 16px 0; /* Adjusted separator */
+    margin: 16px 0;
+    /* Adjusted separator */
 }
 
 .stats-card h4 {
-    margin-bottom: 8px; /* Tighter spacing for the History title */
-    color: var(--primary-color); /* Highlight History title */
+    margin-bottom: 8px;
+    /* Tighter spacing for the History title */
+    color: var(--primary-color);
+    /* Highlight History title */
     font-size: 1rem;
     font-weight: 600;
 }
@@ -701,7 +704,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     justify-content: space-between;
     padding: 8px 0;
     /* Use transparent border for a cleaner look */
-    border-bottom: 1px dashed var(--border-color); 
+    border-bottom: 1px dashed var(--border-color);
 }
 
 /* Highlight Adherence Percentage in Summary */
@@ -722,20 +725,23 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 
 .recent-list {
     /* Style the container for history to control scroll if needed */
-    max-height: 250px; /* Example max-height */
+    max-height: 250px;
+    /* Example max-height */
     overflow-y: auto;
 }
 
 .daily-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem; /* Slightly smaller font for table data */
+    font-size: 0.9rem;
+    /* Slightly smaller font for table data */
 }
 
 /* Table Header Style to match the screenshot better */
 .daily-table thead th {
     text-align: left;
-    padding: 8px 0; /* Tighter padding */
+    padding: 8px 0;
+    /* Tighter padding */
     font-size: 0.85rem;
     font-weight: 500;
     color: var(--text-muted);
@@ -745,13 +751,15 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 
 /* Table Body Style */
 .daily-table tbody td {
-    padding: 6px 0; /* Tighter padding for rows */
+    padding: 6px 0;
+    /* Tighter padding for rows */
     border-bottom: 1px dashed var(--border-color);
     color: var(--text-color);
 }
 
 .daily-table tbody tr:last-child td {
-    border-bottom: none; /* No border on the last row */
+    border-bottom: none;
+    /* No border on the last row */
 }
 
 /* Center-align data columns (optional but common for numerical stats) */
@@ -762,7 +770,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .daily-table th:nth-child(4),
 .daily-table td:nth-child(4) {
     text-align: right;
-    padding-right: 4px; /* Optional slight right padding */
+    padding-right: 4px;
+    /* Optional slight right padding */
 }
 
 
@@ -772,6 +781,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     text-align: center;
     padding: 20px;
 }
+
 .empty {
     color: var(--text-muted);
     text-align: center;
@@ -815,22 +825,38 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 /* --- Custom Overlay Scrollbar Styles --- */
-
 ::-webkit-scrollbar {
     width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent; /* Makes the track invisible */
+    background: transparent;
+    /* Makes the track invisible */
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(148, 142, 174, 0.4); /* A semi-transparent muted color */
+    background-color: rgba(148, 142, 174, 0.4);
+    /* A semi-transparent muted color */
     border-radius: 5px;
     border: 2px solid transparent;
-    background-clip: content-box; /* Ensures the border acts as padding */
+    background-clip: content-box;
+    /* Ensures the border acts as padding */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(168, 85, 247, 0.8); /* Becomes more visible on hover */
+    background-color: rgba(168, 85, 247, 0.8);
+    /* Becomes more visible on hover */
+}
+
+/* --- NEW: HIDE ARROWS FROM NUMBER INPUTS --- */
+/* For Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* For Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
 }

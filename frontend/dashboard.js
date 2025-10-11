@@ -66,21 +66,13 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // --- HELPER & API FUNCTIONS ---
-
-    /**
-     * NEW: Formats a YYYY-MM-DD string to DD-MM-YYYY for display.
-     * @param {string} dateString - Date in 'YYYY-MM-DD' format.
-     * @returns {string} - Date in 'DD-MM-YYYY' format.
-     */
     function formatDateForDisplay(dateString) {
         if (!dateString) return '';
-        // Assuming dateString is always 'YYYY-MM-DD' from the backend/input[type=date]
         const parts = dateString.split('-');
         if (parts.length === 3) {
-            // parts[0]=YYYY, parts[1]=MM, parts[2]=DD
             return `${parts[2]}-${parts[1]}-${parts[0]}`;
         }
-        return dateString; // Return original if format is unexpected
+        return dateString;
     }
 
     function escapeHtml(str) {
@@ -90,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-    // *** UPDATED: Sends token in the Authorization Header ***
     const apiFetch = async (url, options = {}) => {
         const { body, method = 'POST', ...otherOptions } = options;
         
@@ -98,16 +89,14 @@ document.addEventListener("DOMContentLoaded", () => {
             method: method,
             headers: { 
                 'Content-Type': 'application/json',
-                // CRITICAL FIX: Send token in the Authorization Header
                 'Authorization': `Bearer ${token}` 
             },
-            body: body ? JSON.stringify(body) : undefined, // Only include body if present
+            body: body ? JSON.stringify(body) : undefined,
             ...otherOptions
         };
 
         const res = await fetch(`http://localhost:5000/api${url}`, requestOptions);
         
-        // Handle 401 response explicitly
         if (res.status === 401) {
             localStorage.removeItem('token');
             showToast('Session expired. Redirecting...', 'error');
@@ -120,7 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const errorData = await res.json();
                 throw new Error(errorData.message || `Request to ${url} failed`);
             } catch (e) {
-                // If JSON parsing fails (e.g., HTML response from server error)
                 throw new Error(`Request to ${url} failed with status ${res.status}`);
             }
         }
@@ -130,12 +118,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- CORE DATA FUNCTIONS ---
     async function loadMedicines(highlightId = null) {
         try {
-            // Need to send the selected date for the server to attach adherence status
-            // Assuming default today's date for this page load if no date picker is used
             const today = new Date().toISOString().split('T')[0]; 
             const selectedDate = document.getElementById('schedule-date')?.value || today; 
             
-            // Pass the selectedDate in the request body
             allMedicines = await apiFetch('/medicines/list', { body: { selectedDate } }) || [];
             
             filterAndRenderMedicines();
@@ -154,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- RENDER, SORT, AND FILTER LOGIC (UNCHANGED) ---
+    // --- RENDER, SORT, AND FILTER LOGIC ---
     const filterAndRenderMedicines = () => {
         let medicinesToRender = [...allMedicines];
         const searchTerm = searchBar.value.toLowerCase();
@@ -170,21 +155,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return new Date(Math.min.apply(null, dateObjects));
         };
 
-        const getLatestTime = (times) => {
-            if (!times || times.length === 0) return new Date('1970/01/01 00:00:00');
-            const dateObjects = times.map(t => new Date(`1970/01/01 ${t}`));
-            return new Date(Math.max.apply(null, dateObjects));
-        };
-
         switch (sortValue) {
             case 'name-asc':
                 medicinesToRender.sort((a, b) => a.name.localeCompare(b.name));
                 break;
             case 'time-asc':
                 medicinesToRender.sort((a, b) => getEarliestTime(a.times) - getEarliestTime(b.times));
-                break;
-            case 'time-desc':
-                medicinesToRender.sort((a, b) => getLatestTime(b.times) - getLatestTime(a.times));
                 break;
             case 'start-date-asc':
                 medicinesToRender.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
@@ -212,8 +188,6 @@ document.addEventListener("DOMContentLoaded", () => {
             item.dataset.id = med._id;
 
             const timesDisplay = Array.isArray(med.times) ? med.times.join(', ') : '';
-            
-            // --- FIX APPLIED HERE ---
             const displayStartDate = formatDateForDisplay(med.startDate);
             const displayEndDate = formatDateForDisplay(med.endDate);
 
@@ -239,6 +213,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('edit-medicine-id').value = med._id;
         document.getElementById('edit-medicine-name').value = med.name;
         document.getElementById('edit-reminder-email').value = med.email || '';
+        // MODIFIED: Populate the phone number field
+        document.getElementById('edit-reminder-phone').value = med.phone || ''; 
         document.getElementById('edit-start-date').value = med.startDate;
         document.getElementById('edit-end-date').value = med.endDate;
 
@@ -283,12 +259,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const addedMedicine = await apiFetch('/medicines/add', { body: formData });
             showToast("Medicine added successfully!");
             addMedicineForm.reset();
-            // Reset time inputs, keeping only the first one if necessary
             while (timeInputsContainer.children.length > 1) {
                 timeInputsContainer.removeChild(timeInputsContainer.lastChild);
             }
             document.querySelector('#time-inputs-container .medicine-time').value = '';
-
             loadMedicines(addedMedicine._id);
         } catch (err) {
             if (err.message !== "Unauthorized") {
@@ -304,6 +278,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const updatedData = {
             name: document.getElementById("edit-medicine-name").value,
             email: document.getElementById("edit-reminder-email").value,
+            // MODIFIED: Get the phone number value on submit
+            phone: document.getElementById("edit-reminder-phone").value,
             startDate: document.getElementById("edit-start-date").value,
             endDate: document.getElementById("edit-end-date").value,
             dosage: `${document.getElementById("edit-dosage-amount").value} ${document.getElementById("edit-dosage-unit").value}`,
@@ -313,7 +289,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         if (updatedData.times.length === 0) { showToast("Please add at least one time.", "error"); return; }
         try {
-            // Note: We specify method: 'PUT' here, which is handled in the apiFetch options via ...otherOptions
             await apiFetch(`/medicines/${id}`, { method: 'PUT', body: updatedData }); 
             showToast("Medicine updated successfully!");
             closeEditModal();
@@ -327,10 +302,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- DELETE MEDICINE ---
     async function deleteMedicine(id, name) {
-        // NOTE: Replacing confirm() with a custom modal is best practice in modern apps
         if (window.confirm(`Are you sure you want to delete ${name}?`)) { 
             try {
-                // Note: We specify method: 'DELETE' here
                 await apiFetch(`/medicines/${id}`, { method: 'DELETE' }); 
                 showToast("Medicine deleted.");
                 loadMedicines();
