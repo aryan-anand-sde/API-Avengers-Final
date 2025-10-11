@@ -8,7 +8,6 @@ import { fileURLToPath } from "url";
 
 dotenv.config();
 
-<<<<<<< HEAD
 import userRoutes from "./routes/userRoutes.js";
 import reminderRoutes from "./routes/reminderRoutes.js";
 import medicineRoutes from "./routes/medicineRoutes.js";
@@ -16,9 +15,7 @@ import analyticsRoutes from "./routes/analyticsRoutes.js";
 import  startReminderScheduler  from "./utils/reminderScheduler.js";
 import  startWhatsAppReminderScheduler  from "./utils/whatsappReminderScheduler.js";
 
-=======
-// --- Configuration ---
->>>>>>> 56219e9c453241e27e25a0e2fb378dc73a3efbab
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -73,11 +70,11 @@ connectDB();
 
 
 // --- Route Imports (Must be imported after configuration) ---
-import userRoutes from "./routes/userRoutes.js";
-import medicineRoutes from "./routes/medicineRoutes.js";
-import analyticsRoutes from "./routes/analyticsRoutes.js";
+// import userRoutes from "./routes/userRoutes.js";
+// import medicineRoutes from "./routes/medicineRoutes.js";
+// import analyticsRoutes from "./routes/analyticsRoutes.js";
 import auth from "./routes/auth.js";
-import { startReminderScheduler } from "./utils/reminderScheduler.js";
+// import { startReminderScheduler } from "./utils/reminderScheduler.js";
 
 
 // --- API Routes ---
