@@ -7,11 +7,11 @@ import Reminder from "../models/reminderModel.js";
 
 const router = express.Router();
 
-// --- ROUTE FOR ADDING, UPDATING, DELETING MEDICINES (UNCHANGED) ---
+// --- ROUTE FOR ADDING, UPDATING, DELETING MEDICINES ---
 
-// @desc    Add a new medicine
-// @route   POST /api/medicines/add
-// @access  Private
+// @desc    Add a new medicine
+// @route   POST /api/medicines/add
+// @access  Private
 router.post("/add", auth, async (req, res) => {
     try {
         const { name, dosage, phone, times, email, startDate, endDate } = req.body;
@@ -49,14 +49,14 @@ router.post("/add", auth, async (req, res) => {
         res.status(201).json(newMedicine);
 
     } catch (error) {
-        console.error(error);
+        console.error("Error in POST /api/medicines/add:", error);
         res.status(500).json({ message: "Error adding medicine" });
     }
 });
 
-// @desc    Update a medicine
-// @route   PUT /api/medicines/:id
-// @access  Private
+// @desc    Update a medicine
+// @route   PUT /api/medicines/:id
+// @access  Private
 router.put("/:id", auth, async (req, res) => {
     try {
         const medicine = await Medicine.findById(req.params.id);
@@ -82,14 +82,14 @@ router.put("/:id", auth, async (req, res) => {
         res.json(updatedMedicine);
 
     } catch (error) {
-        console.error(error);
+        console.error("Error in PUT /api/medicines/:id:", error);
         res.status(500).json({ message: "Server Error" });
     }
 });
 
-// @desc    Delete a medicine
-// @route   DELETE /api/medicines/:id
-// @access  Private
+// @desc    Delete a medicine
+// @route   DELETE /api/medicines/:id
+// @access  Private
 router.delete("/:id", auth, async (req, res) => {
     try {
         const medicine = await Medicine.findById(req.params.id);
@@ -101,23 +101,24 @@ router.delete("/:id", auth, async (req, res) => {
             return res.status(401).json({ message: "Not authorized" });
         }
 
+        // Delete the medicine and all associated adherence records
         await medicine.deleteOne(); 
         await Adherence.deleteMany({ medicineId: req.params.id });
         
         res.json({ message: "Medicine deleted" });
 
     } catch (err) {
-        console.error(err);
+        console.error("Error in DELETE /api/medicines/:id:", err);
         res.status(500).json({ message: "Error deleting medicine" });
     }
 });
 
 
-// --- ROUTE FOR DOSE STATUS UPDATE (UNCHANGED) ---
+// --- ROUTE FOR DOSE STATUS UPDATE ---
 
-// @desc    Record or update the status for a specific dose time on a specific day.
-// @route   PUT /api/medicines/:id/dose-status
-// @access  Private
+// @desc    Record or update the status for a specific dose time on a specific day.
+// @route   PUT /api/medicines/:id/dose-status
+// @access  Private
 router.put('/:id/dose-status', auth, async (req, res) => {
     try {
         const { date, time, status } = req.body;
@@ -135,7 +136,7 @@ router.put('/:id/dose-status', auth, async (req, res) => {
             userId: userId,
             medicineId: medicineId,
             scheduledDate: date, // YYYY-MM-DD
-            scheduledTime: time, // HH:MM AM/PM
+            scheduledTime: time, 
         };
 
         const update = {
@@ -148,64 +149,58 @@ router.put('/:id/dose-status', auth, async (req, res) => {
         const doseRecord = await Adherence.findOneAndUpdate(
             filter,
             update,
-            { new: true, upsert: true }
+            { new: true, upsert: true } // Upsert: Create if it doesn't exist
         );
 
         res.json({ message: 'Dose status updated successfully.', record: doseRecord });
 
     } catch (err) {
-        console.error(err.message);
+        console.error("Error in PUT /api/medicines/:id/dose-status:", err.message);
         res.status(500).send('Server Error during dose status update.');
     }
 });
 
-// --- MODIFIED ROUTE TO GET MEDICINES WITH DOSE STATUS (FIXED) ---
+// --- ROUTE TO GET MEDICINES WITH DOSE STATUS ---
 
-// @desc    Get all medicines for the logged-in user, joining Adherence status
-// @route   POST /api/medicines/list
-// @access  Private
+// @desc    Get all medicines for the logged-in user, joining Adherence status for the selected day
+// @route   POST /api/medicines/list
+// @access  Private
 router.post("/list", auth, async (req, res) => {
     try {
-        const { selectedDate } = req.body; // NEW: Receive selectedDate from frontend
+        const { selectedDate } = req.body; 
         const userId = req.user.id;
 
+        // 1. Fetch all medicine schedules for the user
         const medicines = await Medicine.find({ userId: userId }).sort({ createdAt: -1 }).lean();
 
         if (medicines.length === 0) {
             return res.json([]);
         }
 
-        // 1. Fetch ONLY Adherence records relevant to the current view date
+        // 2. Fetch Adherence records relevant to the current view date
         const adherenceRecords = await Adherence.find({ 
             userId: userId,
-            scheduledDate: selectedDate // NEW: Filter Adherence records by date
+            scheduledDate: selectedDate 
         }).lean();
 
-        // 2. Map adherence records to a quick lookup object: Key: medicineId_scheduledTime
+        // 3. Map adherence records to a quick lookup object: Key: medicineId_scheduledTime
         const adherenceStatusMap = new Map();
         adherenceRecords.forEach(record => {
-            // Key only needs medicineId and time since we've already filtered by date
             const key = `${record.medicineId.toString()}_${record.scheduledTime}`;
             adherenceStatusMap.set(key, record.status);
         });
 
-        // 3. Inject the adherence status into the medicine object
+        // 4. Inject the adherence status into the medicine object
         const finalMedicines = medicines.map(med => {
             const medObj = { ...med };
-
-            // We will attach the status for the selected date to the main medicine object
-            // The frontend's flattenMedicinesToDoses will then access this status.
-            
-            medObj.adherenceStatusMap = {}; // Initialize the map for the single date
+            medObj.adherenceStatusMap = {}; 
             
             medObj.times.forEach(time => {
                 const key = `${medObj._id.toString()}_${time}`;
                 const status = adherenceStatusMap.get(key);
                 
-                // Only attach the status if a record exists for this specific dose/date
                 if (status) {
-                    // Store it under a unique key that the frontend can look up: 
-                    // medicineId_selectedDate_time (which is doseId in frontend logic)
+                    // Create the key the frontend uses to look up status for a specific dose
                     const frontEndKey = `${medObj._id.toString()}_${selectedDate}_${time}`;
                     medObj.adherenceStatusMap[frontEndKey] = status;
                 }
@@ -217,7 +212,7 @@ router.post("/list", auth, async (req, res) => {
         res.json(finalMedicines);
 
     } catch (error) {
-        console.error(error);
+        console.error("Error in POST /api/medicines/list:", error);
         res.status(500).json({ message: "Error fetching medicines" });
     }
 });

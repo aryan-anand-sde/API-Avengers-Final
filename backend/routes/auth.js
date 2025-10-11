@@ -6,19 +6,17 @@ import User from "../models/User.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 import path from "path";
-// Assuming you have an auth middleware file
 import authMiddleware from "../middleware/auth.js";
 
 const router = express.Router();
+
 // --- SIGN UP ROUTE ---
 router.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
   try {
     let user = await User.findOne({ email });
     if (user) {
-      return res
-        .status(400)
-        .json({ msg: "User with this email already exists" });
+      return res.status(400).json({ msg: "User with this email already exists" });
     }
 
     const verificationToken = crypto.randomBytes(20).toString("hex");
@@ -27,7 +25,7 @@ router.post("/signup", async (req, res) => {
       name,
       email,
       password,
-      verificationToken: verificationToken,
+      verificationToken,
     });
 
     const salt = await bcrypt.genSalt(10);
@@ -49,11 +47,9 @@ router.post("/signup", async (req, res) => {
       text: `Thank you for registering! Please click the following link to verify your email address:\n\n${verificationURL}`,
     });
 
-    res
-      .status(201)
-      .json({
-        msg: "Registration successful. Please check your email to verify your account.",
-      });
+    res.status(201).json({
+      msg: "Registration successful. Please check your email to verify your account.",
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ msg: "Server Error" });
@@ -66,15 +62,11 @@ router.post("/signin", async (req, res) => {
   try {
     let user = await User.findOne({ email });
     if (!user || !user.password) {
-      return res
-        .status(400)
-        .json({ msg: "Invalid Credentials or please sign in with Google." });
+      return res.status(400).json({ msg: "Invalid Credentials or please sign in with Google." });
     }
 
     if (!user.isVerified) {
-      return res
-        .status(401)
-        .json({ msg: "Please verify your email before logging in." });
+      return res.status(401).json({ msg: "Please verify your email before logging in." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -83,9 +75,8 @@ router.post("/signin", async (req, res) => {
     }
 
     const payload = { user: { id: user.id } };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "5h",
-    });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "5h" });
+
     res.json({ token });
   } catch (err) {
     console.error(err.message);
@@ -93,24 +84,18 @@ router.post("/signin", async (req, res) => {
   }
 });
 
-router.post("/me", authMiddleware, async (req, res) => {
+// --- FIXED PROFILE ROUTE (GET) ---
+router.get("/me", authMiddleware, async (req, res) => {
   try {
-    // The user ID is added to req.user by the authMiddleware
     const user = await User.findById(req.user.id).select("-password");
-
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    // Return only the necessary profile details
     res.json({
       name: user.name,
       email: user.email,
-      // NOTE: The frontend code expects `user.token` but the token itself
-      // is not a property of the User model. Returning the user ID here
-      // as a placeholder for confirmation. You should adjust the frontend
-      // if you don't need the token echoed back.
-      id: user.id,
+      _id: user._id,
     });
   } catch (err) {
     console.error(err.message);
@@ -123,9 +108,7 @@ router.get("/verify/:token", async (req, res) => {
   try {
     const user = await User.findOne({ verificationToken: req.params.token });
     if (!user) {
-      return res
-        .status(400)
-        .send("<h1>Invalid or expired verification token.</h1>");
+      return res.status(400).send("<h1>Invalid or expired verification token.</h1>");
     }
 
     user.isVerified = true;
@@ -140,15 +123,7 @@ router.get("/verify/:token", async (req, res) => {
 });
 
 // --- GOOGLE OAUTH ROUTES ---
-
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 router.get(
   "/google/callback",
@@ -158,9 +133,7 @@ router.get(
   }),
   (req, res) => {
     const payload = { user: { id: req.user.id } };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "5h",
-    });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "5h" });
     const isNewUser = new Date() - req.user.createdAt < 2000;
     res.redirect(`/auth.html?token=${token}&isNewUser=${isNewUser}`);
   }
@@ -172,46 +145,34 @@ router.post("/forgot-password", async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return res
-        .status(200)
-        .json({
-          msg: "If an account with that email exists, a password reset link has been sent.",
-        });
+      return res.status(200).json({
+        msg: "If an account with that email exists, a password reset link has been sent.",
+      });
     }
 
     const token = crypto.randomBytes(20).toString("hex");
     user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
     const transporter = nodemailer.createTransport({
       host: "smtp.sendgrid.net",
       port: 587,
-      auth: {
-        user: "apikey",
-        pass: process.env.SENDGRID_API_KEY,
-      },
+      auth: { user: "apikey", pass: process.env.SENDGRID_API_KEY },
     });
 
     const resetURL = `http://localhost:5000/reset-password.html?token=${token}`;
 
-    const mailOptions = {
+    await transporter.sendMail({
       from: process.env.FROM_EMAIL,
       to: user.email,
       subject: "Password Reset for Alchemist's Grimoire",
-      text:
-        `You are receiving this because you have requested the reset of the password for your account.\n\n` +
-        `Please click on the following link to complete the process:\n\n` +
-        `${resetURL}\n\n` +
-        `If you did not request this, please ignore this email.\n`,
-    };
+      text: `Click this link to reset your password:\n\n${resetURL}`,
+    });
 
-    await transporter.sendMail(mailOptions);
-    res
-      .status(200)
-      .json({
-        msg: "If an account with that email exists, a password reset link has been sent.",
-      });
+    res.status(200).json({
+      msg: "If an account with that email exists, a password reset link has been sent.",
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ msg: "Server Error" });
@@ -227,9 +188,7 @@ router.post("/reset-password/:token", async (req, res) => {
     });
 
     if (!user) {
-      return res
-        .status(400)
-        .json({ msg: "Password reset token is invalid or has expired." });
+      return res.status(400).json({ msg: "Password reset token is invalid or has expired." });
     }
 
     const { password } = req.body;
@@ -239,9 +198,7 @@ router.post("/reset-password/:token", async (req, res) => {
     user.resetPasswordExpires = undefined;
     await user.save();
 
-    res
-      .status(200)
-      .json({ msg: "Your password has been successfully updated." });
+    res.status(200).json({ msg: "Your password has been successfully updated." });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ msg: "Server Error" });
