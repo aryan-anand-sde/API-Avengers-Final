@@ -13,8 +13,8 @@ import userRoutes from "./routes/userRoutes.js";
 import reminderRoutes from "./routes/reminderRoutes.js";
 import medicineRoutes from "./routes/medicineRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
-import { startReminderScheduler } from "./utils/reminderScheduler.js";
-import { startWhatsAppReminderScheduler } from "./utils/whatsappReminderScheduler.js";
+import  startReminderScheduler  from "./utils/reminderScheduler.js";
+import  startWhatsAppReminderScheduler  from "./utils/whatsappReminderScheduler.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -61,7 +61,7 @@ app.use("/api/medicines", medicineRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
 // Start scheduler
-// startReminderScheduler();
+startReminderScheduler();
 startWhatsAppReminderScheduler();
 
 // --- API Routes ---

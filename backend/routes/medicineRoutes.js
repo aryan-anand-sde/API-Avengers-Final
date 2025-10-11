@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import Medicine from "../models/medicineModel.js";
 import Adherence from "../models/Adherence.js";
 import auth from "../middleware/auth.js";
-import reminder from "../models/reminderModel.js"; 
+import Reminder from "../models/reminderModel.js"; 
 
 const router = express.Router();
 
@@ -34,17 +34,17 @@ router.post("/add", auth, async (req, res) => {
 
         const newMedicine = await medicine.save();
 
-        const Reminder = new reminder({
-            name,
-            dosage,
-            contactType: phone ? "whatsapp" : "email",
-            email,
-            phone,
-            times,
-            startDate: new Date(startDate),
-            endDate: new Date(endDate)
-        });
-        await Reminder.save();
+    const reminder = new Reminder({
+      name,
+      dosage,
+
+      email,
+      phone,
+      times,
+      startDate,
+      endDate,
+    });
+    await reminder.save();
         
         res.status(201).json(newMedicine);
 

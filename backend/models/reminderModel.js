@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Helper to normalize time format (e.g., "9:0" → "09:00")
+// Normalize time format (e.g. "9:0" → "09:00")
 const normalizeTime = (time) => {
   if (!time) return "";
   const [h, m] = time.split(":");
@@ -20,7 +20,7 @@ const reminderSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Support both email and WhatsApp
+    // Contact preference: either email or WhatsApp
     contactType: {
       type: String,
       enum: ["email", "whatsapp"],
@@ -35,7 +35,7 @@ const reminderSchema = new mongoose.Schema(
           if (this.contactType === "email") {
             return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v);
           }
-          return true; // skip validation if using WhatsApp
+          return true;
         },
         message: "Invalid email address",
       },
@@ -47,15 +47,15 @@ const reminderSchema = new mongoose.Schema(
       validate: {
         validator: function (v) {
           if (this.contactType === "whatsapp") {
-            return /^\+?[1-9]\d{7,14}$/.test(v); // E.164 format like +919876543210
+            // ✅ Must start with + and be 8–15 digits total
+            return /^\+[1-9]\d{7,14}$/.test(v);
           }
-          return true; // skip validation if using email
+          return true;
         },
-        message: "Invalid phone number format",
+        message: "Invalid phone number format (use +countrycode...)",
       },
     },
 
-    // Times stored as ["09:00", "21:00"]
     times: {
       type: [String],
       required: [true, "Reminder times are required"],
@@ -81,12 +81,10 @@ const reminderSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// Before saving, ensure all times are normalized
+// Normalize times before saving
 reminderSchema.pre("save", function (next) {
   if (this.times && this.times.length > 0) {
     this.times = this.times.map(normalizeTime);

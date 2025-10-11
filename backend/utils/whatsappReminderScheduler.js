@@ -1,30 +1,23 @@
 import cron from "node-cron";
-import Reminder from "../models/reminderModel.js";
-import sendWhatsApp from "./whatsappService.js";
+import Reminder from "../models/reminderModel.js";  // 👈 use your Reminder model here
+import sendWhatsApp from "./whatsappService.js";    // 👈 Twilio WhatsApp sender
+import Medicine from "../models/medicineModel.js";
 
-// Helper to normalize time: "9:0" → "09:00"
-const normalizeTime = (time) => {
-  if (!time) return "";
-  const [h, m] = time.split(":");
-  return `${h.padStart(2, "0")}:${m.padStart(2, "0")}`;
-};
+const startWhatsAppScheduler = () => {
+  console.log("[whatsapp-scheduler] Scheduler started");
 
-export const startWhatsAppReminderScheduler = () => {
-  console.log("[scheduler] WhatsApp Scheduler started");
-
-  // Run every minute
+  // Runs every minute
   cron.schedule("* * * * *", async () => {
     try {
       const now = new Date();
 
-      // --- FORMAT CURRENT TIME IN IST ---
+      // ✅ Timezone-aware formatting for India
       const timeFormatter = new Intl.DateTimeFormat("en-GB", {
         timeZone: "Asia/Kolkata",
         hour12: false,
         hour: "2-digit",
         minute: "2-digit",
       });
-
       const dateFormatter = new Intl.DateTimeFormat("en-CA", {
         timeZone: "Asia/Kolkata",
         year: "numeric",
@@ -32,52 +25,42 @@ export const startWhatsAppReminderScheduler = () => {
         day: "2-digit",
       });
 
-      const currentTime = normalizeTime(timeFormatter.format(now)); // "HH:MM"
-      const todayStr = dateFormatter.format(now); // "YYYY-MM-DD"
+      const currentTime = timeFormatter.format(now);  // "HH:MM"
+      const todayStr = dateFormatter.format(now);     // "YYYY-MM-DD"
       const todayDate = new Date(todayStr + "T00:00:00+05:30");
 
-      console.log(`[scheduler] running today=${todayStr} currentTime=${currentTime}`);
+      console.log(`[whatsapp-scheduler] running today=${todayStr} currentTime=${currentTime}`);
 
-      // --- FETCH REMINDERS ---
-      const reminders = await Reminder.find();
+      // ✅ Fetch reminders whose times array includes the current time
+      const reminders = await Reminder.find({ times: { $in: [currentTime] } });
+      console.log(`[whatsapp-scheduler] found ${reminders.length} reminders for time ${currentTime}`);
 
-      // --- FILTER REMINDERS ---
-      const dueReminders = reminders.filter((rem) => {
-        // 1. Normalize all times
-        const normalizedTimes = rem.times.map(normalizeTime);
+      for (const reminder of reminders) {
+        const startsOnOrBefore = reminder.startDate || reminder.startDate <= todayDate;
+        const endsOnOrAfter = reminder.endDate || reminder.endDate >= todayDate;
 
-        // 2. Current time match
-        if (!normalizedTimes.includes(currentTime)) return false;
+        if (!startsOnOrBefore || !endsOnOrAfter) {
+          console.log(`[whatsapp-scheduler] skipping ${reminder.name} (id=${reminder._id}) due to date`);
+          continue;
+        }
 
-        // 3. Start/End date check
-        const start = rem.startDate ? new Date(rem.startDate + "T00:00:00+05:30") : null;
-        const end = rem.endDate ? new Date(rem.endDate + "T23:59:59+05:30") : null;
+        console.log(`[whatsapp-scheduler] sending WhatsApp to ${reminder.phone} (id=${reminder._id})`);
 
-        if (start && todayDate < start) return false;
-        if (end && todayDate > end) return false;
-
-        // 4. Phone check for WhatsApp
-        if (!rem.phone || rem.contactType !== "whatsapp") return false;
-
-        return true;
-      });
-
-      console.log(`[scheduler] found ${dueReminders.length} due reminders for time ${currentTime}`);
-
-      // --- SEND WHATSAPP REMINDERS ---
-      for (const rem of dueReminders) {
         try {
           await sendWhatsApp({
-            to: rem.phone,
-            message: `Hello ${rem.name}! It's time for your medicine: ${rem.message || rem.name} (${rem.dosage || "no dosage info"}).`,
+            to: reminder.phone,
+            message: `💊 Hello! It's time to take your medicine: ${reminder.name} (${reminder.dosage}).`,
           });
-          console.log(`✅ Reminder sent to ${rem.phone} for ${rem.name} at ${currentTime}`);
+
+          console.log(`✅ WhatsApp reminder sent to ${reminder.phone} for ${reminder.name} at ${currentTime}`);
         } catch (err) {
-          console.error(`❌ Failed to send WhatsApp to ${rem.phone}:`, err);
+          console.error(`❌ Failed to send WhatsApp to ${reminder.phone}:`, err);
         }
       }
     } catch (err) {
-      console.error("WhatsApp reminder scheduler error:", err);
+      console.error("[whatsapp-scheduler] error:", err);
     }
   });
 };
+
+export default startWhatsAppScheduler;

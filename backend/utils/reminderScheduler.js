@@ -2,7 +2,7 @@ import cron from "node-cron";
 import Medicine from "../models/medicineModel.js";
 import { sendMail } from "./mailer.js";
 
-export const startReminderScheduler = () => {
+const startReminderScheduler = () => {
   console.log("[scheduler] Scheduler started");
 
   // Runs every minute
@@ -60,3 +60,6 @@ export const startReminderScheduler = () => {
     }
   });
 };
+
+
+export default startReminderScheduler;

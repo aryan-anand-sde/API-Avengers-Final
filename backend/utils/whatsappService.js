@@ -1,11 +1,8 @@
 import Twilio from "twilio";
 
 // TODO: move these credentials to environment variables (process.env.TWILIO_SID / TWILIO_AUTH)
-const accountSid = 'AC948cb3fa1bb3b3f70a9286489c83cba9';
-const authToken = '540c751d6f3d84fe5350f71692dc500c';
-
 // Create the Twilio client
-const client = Twilio(accountSid, authToken);
+const client = Twilio(process.env.accountSid, process.env.authToken);
 
 /**
  * Send a WhatsApp message using Twilio.
