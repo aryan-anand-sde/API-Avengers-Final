@@ -43,7 +43,9 @@
                 <section class="adherence-grid">
                     <div class="adherence-card">
                         <h3>Adherence Score</h3>
-                        <canvas id="adherenceChart" width="400" height="300"></canvas>
+                        <div style="height: 250px;">
+                            <canvas id="adherenceChart"></canvas>
+                        </div>
                     </div>
                     <div class="adherence-card stats-card">
                         <h3>Summary</h3>
@@ -55,7 +57,9 @@
                         </ul>
                         <hr />
                         <h4>History</h4>
-                        <div id="recent-list" class="recent-list">—</div>
+                        <div id="recent-list" class="recent-list">
+                            <div class="empty">Select a date range and click Apply.</div>
+                        </div>
                     </div>
                     <div class="adherence-card tips-card">
                         <h3>Tips & Precautions</h3>

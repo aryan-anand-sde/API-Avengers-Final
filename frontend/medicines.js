@@ -9,6 +9,9 @@ let listEl, emptyEl, searchEl;
 let scheduleDateEl, prevDayBtn, nextDayBtn, todayBtn;
 let adherenceMetricEl; // Adherence metric element selector
 
+// Get the token once on load
+const GLOBAL_TOKEN = localStorage.getItem("token");
+
 
 // --- Helper Functions ---
 
@@ -33,7 +36,19 @@ function isToday() {
 }
 
 /**
+ * NEW: Checks if the currentScheduleDate is in the future.
+ * @returns {boolean}
+ */
+function isFutureDate() {
+    const today = normalizeDateToMidnight(new Date());
+    const scheduled = normalizeDateToMidnight(currentScheduleDate);
+    
+    return scheduled > today;
+}
+
+/**
  * Formats a Date object to 'YYYY-MM-DD' for the input[type="date"] element and API.
+ * NOTE: input[type="date"] MUST use YYYY-MM-DD format.
  * @param {Date} date 
  * @returns {string}
  */
@@ -43,6 +58,19 @@ function formatDateForInput(date) {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
+
+/**
+ * NEW: Formats a Date object to 'DD-MM-YYYY' string for display purposes.
+ * @param {Date} date 
+ * @returns {string}
+ */
+function formatDateForDisplay(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${day}-${month}-${year}`;
+}
+
 
 /**
  * Filters the medicines array based on the currentScheduleDate (Start Date <= Selected Date <= End Date).
@@ -109,7 +137,7 @@ function escapeHtml(str) {
 }
 
 /**
- * Displays the regular toast notification (now without Undo logic).
+ * Displays the regular toast notification.
  */
 const showToast = (message, type = 'success') => {
     const toastContainer = document.getElementById("toast-container");
@@ -132,15 +160,29 @@ const showToast = (message, type = 'success') => {
 function updateAdherenceMetric(doses) {
     if (!adherenceMetricEl) return;
 
-    const totalDoses = doses.length;
-    let takenCount = 0;
-    let missedCount = 0;
+    const currentMoment = new Date();
+    const formattedCurrentDate = formatDateForInput(currentScheduleDate);
+    const formattedToday = formatDateForInput(currentMoment);
 
-    doses.forEach(dose => {
+    // Only count doses that are scheduled for today OR are for a past date
+    const relevantDoses = doses.filter(dose => {
+        if (formattedCurrentDate < formattedToday) {
+            return true; // All doses on a past day are relevant
+        } else if (formattedCurrentDate === formattedToday) {
+            // Only doses whose time has passed on today are relevant
+            const doseTime = dose.doseTime; // HH:MM format
+            const doseDateTime = new Date(`${formattedCurrentDate}T${doseTime}`);
+            return doseDateTime <= currentMoment;
+        }
+        return false; // Future dates/doses are not relevant
+    });
+
+    const totalDoses = relevantDoses.length;
+    let takenCount = 0;
+    
+    relevantDoses.forEach(dose => {
         if (dose.status === 'taken') {
             takenCount++;
-        } else if (dose.status === 'missed') {
-            missedCount++;
         }
     });
 
@@ -149,18 +191,17 @@ function updateAdherenceMetric(doses) {
 
     if (totalDoses === 0) {
         metricValueEl.textContent = 'N/A';
-        metricLabelEl.textContent = 'Schedule Empty';
+        metricLabelEl.textContent = 'Scheduled Doses';
         adherenceMetricEl.style.backgroundColor = 'var(--text-muted)';
     } else {
         const percent = Math.round((takenCount / totalDoses) * 100);
         metricValueEl.textContent = `${takenCount}/${totalDoses} (${percent}%)`;
         metricLabelEl.textContent = 'Doses Taken';
         
-        // Dynamically color the metric based on performance
         if (percent >= 80) {
             adherenceMetricEl.style.backgroundColor = 'var(--success-color)'; // Green
         } else if (percent >= 50) {
-            adherenceMetricEl.style.backgroundColor = 'var(--gradient-end)'; // Amber/Yellow (using existing var)
+            adherenceMetricEl.style.backgroundColor = 'var(--gradient-end)'; // Amber/Yellow
         } else {
             adherenceMetricEl.style.backgroundColor = 'var(--delete-red)'; // Red
         }
@@ -171,19 +212,42 @@ function updateAdherenceMetric(doses) {
 // --- API and Main Data Flow Functions ---
 
 /**
- * Helper for making PUT requests for dose status updates.
+ * Unified helper for making authenticated API requests.
  */
-const apiPutFetch = async (url, body) => {
-    const token = localStorage.getItem("token");
+const apiFetch = async (url, options = {}) => {
+    const { body, method = 'POST', ...otherOptions } = options;
+    
     const requestOptions = {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, ...body }),
+        method: method,
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${GLOBAL_TOKEN}` 
+        },
+        body: body ? JSON.stringify(body) : undefined,
+        ...otherOptions
     };
+
     const res = await fetch(`http://localhost:5000/api${url}`, requestOptions);
+
+    // Handle 401 response explicitly for redirection
+    if (res.status === 401) {
+        localStorage.removeItem('token');
+        showToast('Session expired. Redirecting...', 'error');
+        if (listEl) {
+             listEl.innerHTML = '<div class="error-message">Session expired. Redirecting...</div>';
+        }
+        setTimeout(() => { window.location.href = 'login.html'; }, 1000);
+        throw new Error("Unauthorized");
+    }
+
     if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || `Request to ${url} failed with status ${res.status}`);
+        try {
+            const errorData = await res.json();
+            throw new Error(errorData.message || `Request to ${url} failed`);
+        } catch (e) {
+            // If JSON parsing fails (e.g., HTML response from server error)
+            throw new Error(`Request to ${url} failed with status ${res.status}`);
+        }
     }
     return res.json();
 };
@@ -198,11 +262,14 @@ async function updateMedicineStatus(id, doseTime, status) {
         const card = document.querySelector(`[data-dose-id="${id}-${doseTime.replace(/\s/g, '-')}" ]`);
         const cardTitle = card ? card.querySelector('h3').textContent : 'Medicine';
 
-        // 1. Send API call immediately (no delay)
-        await apiPutFetch(`/medicines/${id}/dose-status`, { 
-            date: formattedDate, 
-            time: doseTime, 
-            status 
+        // 1. Send API call immediately 
+        await apiFetch(`/medicines/${id}/dose-status`, { 
+            method: 'PUT',
+            body: { 
+                date: formattedDate, 
+                time: doseTime, 
+                status 
+            }
         });
         
         // 2. Refresh the list to load the permanent status from backend
@@ -210,8 +277,10 @@ async function updateMedicineStatus(id, doseTime, status) {
         showToast(`Dose of ${cardTitle} marked as ${status}.`, status);
 
     } catch (err) {
-        console.error("Status update failed:", err);
-        showToast("Error updating status. Please try again.", "error"); 
+        if (err.message !== "Unauthorized") {
+             console.error("Status update failed:", err);
+             showToast("Error updating status. Please try again.", "error"); 
+        }
     }
 }
 
@@ -219,30 +288,26 @@ async function updateMedicineStatus(id, doseTime, status) {
  * Fetches the list of all medicines from the API, sending the selected date.
  */
 async function loadAllMedicines() {
-    const token = localStorage.getItem("token");
-    if (!token) {
-        listEl.innerHTML = '<div class="error-message">Authentication token not found.</div>';
-        return;
+    if (!GLOBAL_TOKEN) {
+        return; 
     }
     
-    // Send the currently selected date to the backend
     const selectedDate = formatDateForInput(currentScheduleDate);
 
-    listEl.innerHTML = '<div style="text-align: center; color: var(--text-muted);">Loading schedule...</div>'; 
+    listEl.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">Loading schedule...</div>'; 
 
     try {
-        const res = await fetch("http://localhost:5000/api/medicines/list", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, selectedDate }), // Send selectedDate
+        const response = await apiFetch("/medicines/list", {
+            body: { selectedDate }, 
         });
-        if (!res.ok) throw new Error("Failed to fetch medicines.");
 
-        medicines = await res.json(); 
+        medicines = response || []; 
         filterAndRenderList(); 
     } catch (err) {
-        console.error("API Error:", err);
-        listEl.innerHTML = `<div class="error-message">Failed to load medicines: ${err.message}. Check your API server.</div>`;
+        if (err.message !== "Unauthorized") {
+            console.error("API Error:", err);
+            listEl.innerHTML = `<div class="error-message">Failed to load medicines: ${err.message}. Check your API server.</div>`;
+        }
     }
 }
 
@@ -277,49 +342,62 @@ function filterAndRenderList() {
 function renderList(items) {
     if (!listEl || !emptyEl) return;
 
-    const formattedDate = scheduleDateEl.value;
+    // --- FIX APPLIED HERE: Use formatDateForDisplay ---
+    const displayDate = formatDateForDisplay(currentScheduleDate); 
+
     if (!items || items.length === 0) {
         listEl.innerHTML = "";
         emptyEl.hidden = false;
         emptyEl.querySelector('h3').textContent = 'No Scheduled Doses';
-        emptyEl.querySelector('p').textContent = `Nothing is scheduled for ${formattedDate}.`;
+        emptyEl.querySelector('p').textContent = `Nothing is scheduled for ${displayDate}.`;
         return;
     }
 
     emptyEl.hidden = true;
     let html = "";
 
-    // --- FIX: Sort items by doseTime (Earliest First) ---
+    // Sort items by doseTime (Earliest First)
     items.sort((a, b) => {
-        // Creates temporary date objects to handle AM/PM comparison reliably
         const dateA = new Date(`2000/01/01 ${a.doseTime}`);
         const dateB = new Date(`2000/01/01 ${b.doseTime}`);
         return dateA - dateB;
     });
 
-    const showActionButtons = isToday(); 
+    // Determine when actions are enabled
+    const isFuture = isFutureDate();
 
     items.forEach(m => {
         const doseId = `${m._id}-${m.doseTime.replace(/\s/g, '-')}`;
-        
-        // Status comes directly from m.status (set by flattenMedicinesToDoses)
         const currentStatus = m.status || 'pending';
         
         let actionsHtml = '';
         
-        // Show "Taken" / "Missed" text buttons only if PENDING and TODAY
-        if (currentStatus === 'pending' && showActionButtons) {
-            actionsHtml = `
-                <button class="btn btn-primary btn-action-text" title="Mark as Taken" data-id="${m._id}" data-dose-time="${m.doseTime}" data-action="taken">Taken</button>
-                <button class="btn btn-secondary btn-action-text" title="Mark as Missed" data-id="${m._id}" data-dose-time="${m.doseTime}" data-action="missed">Missed</button>
-            `;
-        } else if (currentStatus === 'taken') {
+        if (currentStatus === 'taken') {
             actionsHtml = `<span class="status-indicator taken"><i class="fa-solid fa-check-circle"></i> Taken</span>`;
         } else if (currentStatus === 'missed') {
             actionsHtml = `<span class="status-indicator missed"><i class="fa-solid fa-times-circle"></i> Missed</span>`;
+        } else if (isFuture) {
+            // 1. If viewing a future date, show nothing.
+            actionsHtml = '';
+        } else if (isToday()) {
+            // 2. If viewing today, check if the time has passed.
+            const doseDateTime = new Date(`${formatDateForInput(currentScheduleDate)}T${m.doseTime}`);
+            const isFutureTimeToday = doseDateTime > new Date();
+
+            if (isFutureTimeToday) {
+                 actionsHtml = ''; // Do not show buttons for future times today
+            } else {
+                 actionsHtml = `
+                    <button class="btn btn-primary btn-action-text" title="Mark as Taken" data-id="${m._id}" data-dose-time="${m.doseTime}" data-action="taken">Taken</button>
+                    <button class="btn btn-secondary btn-action-text" title="Mark as Missed" data-id="${m._id}" data-dose-time="${m.doseTime}" data-action="missed">Missed</button>
+                 `;
+            }
         } else {
-            // If viewing a historical date and status is pending, show nothing.
-            actionsHtml = ''; 
+            // 3. If viewing a past date (and status is pending), show buttons.
+             actionsHtml = `
+                <button class="btn btn-primary btn-action-text" title="Mark as Taken" data-id="${m._id}" data-dose-time="${m.doseTime}" data-action="taken">Taken</button>
+                <button class="btn btn-secondary btn-action-text" title="Mark as Missed" data-id="${m._id}" data-dose-time="${m.doseTime}" data-action="missed">Missed</button>
+             `;
         }
 
         html += `
@@ -366,7 +444,7 @@ function attachActionHandlers() {
 function changeDate(daysToAdd) {
     currentScheduleDate.setDate(currentScheduleDate.getDate() + daysToAdd);
     scheduleDateEl.value = formatDateForInput(currentScheduleDate);
-    filterAndRenderList();
+    loadAllMedicines(); // Load fresh data for the new date
 }
 
 /**
@@ -375,12 +453,21 @@ function changeDate(daysToAdd) {
 function setDateToToday() {
     currentScheduleDate = new Date();
     scheduleDateEl.value = formatDateForInput(currentScheduleDate);
-    filterAndRenderList();
+    loadAllMedicines(); // Load fresh data for today
 }
 
 
 // --- Initializer ---
 document.addEventListener("DOMContentLoaded", () => {
+    // Check for token immediately and redirect if missing
+    if (!GLOBAL_TOKEN) {
+        if (document.body) {
+            document.body.innerHTML = '<div class="error-message" style="text-align: center; padding: 50px;">Authentication required. Redirecting to login...</div>';
+        }
+        setTimeout(() => { window.location.href = 'login.html'; }, 500);
+        return;
+    }
+
     // Assign elements from the DOM
     listEl = document.getElementById("medicines-list");
     emptyEl = document.getElementById("empty");
@@ -398,8 +485,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Attach Event Listeners for the date controls
     scheduleDateEl.addEventListener("change", (e) => {
+        // When user manually selects a date, use the value directly
         currentScheduleDate = new Date(e.target.value);
-        filterAndRenderList();
+        loadAllMedicines(); // Load fresh data for the new date
     });
     
     prevDayBtn.addEventListener("click", () => changeDate(-1));
