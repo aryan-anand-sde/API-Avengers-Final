@@ -84,6 +84,32 @@ router.post("/signin", async (req, res) => {
   }
 });
 
+router.put("/update-password", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id; // now guaranteed by middleware
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error("Error updating password:", err);
+    res.status(500).json({ message: "Server error while updating password" });
+  }
+});
+
+
 // --- FIXED PROFILE ROUTE (GET) ---
 router.get("/me", authMiddleware, async (req, res) => {
   try {

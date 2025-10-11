@@ -1,31 +1,36 @@
+// middleware/auth.js
 import jwt from "jsonwebtoken";
 
-export default function (req, res, next) {
-    // 1. Get the token from the Authorization header
-    // The token is typically sent in the format: "Bearer <token>"
+const auth = (req, res, next) => {
+  try {
     const authHeader = req.header("Authorization");
 
-    // Check if the header exists and starts with "Bearer "
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        // Return 401 if the header is missing or improperly formatted
-        return res.status(401).json({ msg: "No token, authorization denied." });
+      return res.status(401).json({ message: "No token, authorization denied." });
     }
-    
-    // Extract the token (removing "Bearer ")
-    const token = authHeader.replace("Bearer ", "");
 
-    // 2. Verify the token
-    try {
-        // This line checks if the token is valid and not expired
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const token = authHeader.split(" ")[1];
 
-        // Attach the user information (e.g., user ID) from the payload to the request
-        // The payload usually contains 'user: { id: ... }'
-        req.user = decoded.user; 
-        
-        next();
-    } catch (err) {
-        // This catches errors like 'TokenExpiredError', 'JsonWebTokenError' (malformed)
-        res.status(401).json({ msg: "Token is not valid or has expired." });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Handle different payload formats
+    // Case 1: { user: { id: "..." } }
+    if (decoded.user && decoded.user.id) {
+      req.user = { id: decoded.user.id };
+    } 
+    // Case 2: { id: "..." }
+    else if (decoded.id) {
+      req.user = { id: decoded.id };
+    } 
+    else {
+      return res.status(401).json({ message: "Invalid token payload" });
     }
-}
+
+    next();
+  } catch (error) {
+    console.error("Auth middleware error:", error);
+    res.status(401).json({ message: "Token is not valid or has expired" });
+  }
+};
+
+export default auth;

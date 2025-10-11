@@ -1,30 +1,41 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Settings page loaded.");
+  const updateBtn = document.querySelector(".btn.btn-primary");
 
-    // Example: Add logic for updating settings in the future
-    const updatePasswordBtn = document.querySelector('button');
-    const emailToggle = document.getElementById('email-reminders-toggle');
+  updateBtn.addEventListener("click", async () => {
+    const newPassword = document.getElementById("change-password").value.trim();
+    const token = localStorage.getItem("token");
 
-    if (updatePasswordBtn) {
-        updatePasswordBtn.addEventListener('click', () => {
-            const newPassword = document.getElementById('change-password').value;
-            if (newPassword) {
-                // In the future, you would send this to your backend API
-                alert(`Password would be changed to: ${newPassword}`);
-            } else {
-                alert("Please enter a new password.");
-            }
-        });
+    if (!token) {
+      alert("You are not logged in!");
+      return;
     }
 
-    if(emailToggle) {
-        emailToggle.addEventListener('change', () => {
-            // In the future, you would save this preference to the user's profile
-            if (emailToggle.checked) {
-                alert("Email reminders enabled.");
-            } else {
-                alert("Email reminders disabled.");
-            }
-        });
+    if (!newPassword || newPassword.length < 6) {
+      alert("Password must be at least 6 characters long.");
+      return;
     }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/update-password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("✅ " + data.message);
+        document.getElementById("change-password").value = "";
+      } else {
+        alert("⚠️ " + data.message);
+      }
+    } catch (error) {
+      console.error("Error updating password:", error);
+      alert("❌ Something went wrong.");
+    }
+  });
 });
