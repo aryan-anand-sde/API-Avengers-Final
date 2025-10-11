@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="pages.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
+
 <body>
     <div class="dashboard-layout">
         <aside class="sidebar">
@@ -29,12 +31,35 @@
 
         <main class="dashboard-main">
             <div class="dashboard-container">
-                <h2 class="dashboard-title"><i class="fa-solid fa-user"></i> User Profile</h2>
+                <div class="profile-header">
+                    <h2 class="dashboard-title"><i class="fa-solid fa-user-circle"></i> User Profile</h2>
+                    <button id="logout-btn" class="btn btn-logout">
+                        Logout
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
                 <hr />
-                <div id="profile-info" class="profile-info-card">Loading user info...</div>
+
+                <div class="profile-info-card">
+                    <div class="profile-item">
+                        <span class="profile-label">Name</span>
+                        <span class="profile-value" id="user-name">Loading...</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="profile-label">Email</span>
+                        <span class="profile-value" id="user-email">Loading...</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="profile-label">User ID</span>
+                        <span class="profile-value" id="user-id">Loading...</span>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
+
+    <div id="toast-container"></div>
     <script src="profile.js"></script>
 </body>
+
 </html>
