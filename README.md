@@ -131,6 +131,10 @@ This project was magically conjured by the **API Avengers** (Team ID: 734).
 
 > Medications Page :
 > ![](/assets/Medications.png)
+>
+> Analytics Page :
+> <img width="1919" height="969" alt="Screenshot 2025-10-11 103456" src="https://github.com/user-attachments/assets/0aa6cd4e-c2e4-4838-b2ef-db96031e08f1" />
+
 
 # Event Tag :
 
